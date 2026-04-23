@@ -17,7 +17,6 @@ import {
     Legend
 } from 'recharts'
 import { MapContainer, TileLayer, useMap } from 'react-leaflet'
-import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import 'leaflet.heat'
 import { useState } from 'react'
@@ -199,7 +198,7 @@ export default function DashboardPage() {
                     ) : stats.historicoCasos.length === 0 ? (
                         <EmptyChartState title="Sem dados de histórico" />
                     ) : (
-                        <ResponsiveContainer width="100%" height={220}>
+                        <ResponsiveContainer width="100%" height={220} minWidth={0}>
                             <BarChart data={stats.historicoCasos}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
                                 <XAxis
@@ -233,7 +232,7 @@ export default function DashboardPage() {
                     ) : stats.rankingTags.length === 0 ? (
                         <EmptyChartState title="Sem tags cadastradas nos casos" />
                     ) : (
-                        <ResponsiveContainer width="100%" height={220}>
+                        <ResponsiveContainer width="100%" height={220} minWidth={0}>
                             <BarChart data={stats.rankingTags} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" horizontal={false} />
                                 <XAxis type="number" hide />

@@ -22,6 +22,7 @@
     border-radius: 8px;
     padding: 20px;
     min-height: 280px;
+    min-width: 0;
 }
 
 .chart-container-small {
@@ -31,6 +32,7 @@
     border-radius: 8px;
     padding: 20px;
     min-height: 280px;
+    min-width: 0;
 }
 
 .map-container-full {

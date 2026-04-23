@@ -65,7 +65,9 @@ const HEADER_ALIASES: Record<string, string[]> = {
     cpf_cnpj: ['cpf/cnpj', 'cpf_cnpj', 'cpfcnpj', 'cpf', 'cnpj', 'documento', 'doc'],
     vulgo: ['vulgo', 'apelido', 'alias', 'alcunha'],
     data_nascimento: ['data_nascimento', 'data nascimento', 'nascimento', 'dt_nasc', 'dt nascimento', 'birth_date'],
-    filiacao: ['filiacao', 'filiação', 'nome_mae', 'nome da mae', 'nome da mãe', 'mae', 'mãe'],
+    filiacao: ['filiacao', 'filiação'],
+    nome_pai: ['nome_pai', 'nome do pai', 'pai', 'father'],
+    nome_mae: ['nome_mae', 'nome da mae', 'nome da mãe', 'mae', 'mãe', 'mother'],
     faccionado: ['faccionado', 'faccao', 'facção', 'organizacao_criminosa', 'orcrim'],
     papel_organizacao: ['papel_organizacao', 'papel organização', 'papel na organização', 'papel', 'funcao', 'função', 'role'],
     observacoes: ['observacoes', 'observações', 'obs', 'notas', 'notes'],
@@ -134,6 +136,9 @@ function normalizar(dados: Record<string, string>): Record<string, string> {
         switch (campo) {
             case 'nome':
             case 'codinome':
+            case 'nome_pai':
+            case 'nome_mae':
+            case 'filiacao':
                 v = v.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
                 v = v.replace(/\b(Da|Das|De|Do|Dos|E)\b/g, m => m.toLowerCase())
                 break
@@ -440,6 +445,8 @@ export async function processarImportacao(
                 vulgo: dadosNorm.vulgo || null,
                 data_nascimento: dadosNorm.data_nascimento || null,
                 filiacao: dadosNorm.filiacao || null,
+                nome_pai: dadosNorm.nome_pai || null,
+                nome_mae: dadosNorm.nome_mae || null,
                 faccionado: dadosNorm.faccionado || null,
                 papel_organizacao: papelBanco,
                 observacoes: dadosNorm.observacoes || null,
@@ -503,7 +510,7 @@ export async function gerarTemplate(): Promise<void> {
 
     const cabecalhos = [
         'E-Proc', 'Codinome', 'Natureza', 'Integrar-E', 'Tags',
-        'Nome', 'CPF/CNPJ', 'Vulgo', 'Data Nascimento', 'Filiação',
+        'Nome', 'CPF/CNPJ', 'Vulgo', 'Data Nascimento', 'Nome do Pai', 'Nome da Mãe',
         'Faccionado', 'Papel na Organização', 'Observações', 'Endereço'
     ]
 
@@ -517,7 +524,7 @@ export async function gerarTemplate(): Promise<void> {
     // Inserindo linha de exemplo
     ws.addRow([
         '0000000-00.2024.8.16.0001', 'Operação Exemplo', 'NF', 'M-2024-0001', 'Tráfico;Lavagem',
-        'Maria da Silva', '529.982.247-25', 'Mariazinha', '15/03/1985', 'Ana da Silva',
+        'Maria da Silva', '529.982.247-25', 'Mariazinha', '15/03/1985', 'José da Silva', 'Ana da Silva',
         'PCC', 'Operacional', 'Suspeita de lavagem', 'Rua X, 123 - Centro'
     ])
 
@@ -532,11 +539,12 @@ export async function gerarTemplate(): Promise<void> {
         { width: 20 }, // G: CPF/CNPJ
         { width: 15 }, // H: Vulgo
         { width: 18 }, // I: Data Nascimento
-        { width: 20 }, // J: Filiação
-        { width: 18 }, // K: Faccionado
-        { width: 22 }, // L: Papel
-        { width: 30 }, // M: Observações
-        { width: 35 }  // N: Endereço
+        { width: 20 }, // J: Pai
+        { width: 20 }, // K: Mãe
+        { width: 18 }, // L: Faccionado
+        { width: 22 }, // M: Papel
+        { width: 30 }, // N: Observações
+        { width: 35 }  // O: Endereço
     ]
 
     // Força a Coluna G (CPF/CNPJ) a ser tratada como Texto, preservando zeros à esquerda na digitação
@@ -551,15 +559,15 @@ export async function gerarTemplate(): Promise<void> {
             formulae: ['"NF,PI,AP"']
         }
 
-        // Coluna K (Faccionado)
-        ws.getCell(`K${i}`).dataValidation = {
+        // Coluna L (Faccionado)
+        ws.getCell(`L${i}`).dataValidation = {
             type: 'list',
             allowBlank: true,
             formulae: ['"PCC,CV,TCP,ADE,Outros,Não Faccionado"']
         }
 
-        // Coluna L (Papel na Organização)
-        ws.getCell(`L${i}`).dataValidation = {
+        // Coluna M (Papel na Organização)
+        ws.getCell(`M${i}`).dataValidation = {
             type: 'list',
             allowBlank: true,
             formulae: ['"Indefinido,Liderança,Gerência,Financiamento,Operacional,Laranja,Facilitador"']

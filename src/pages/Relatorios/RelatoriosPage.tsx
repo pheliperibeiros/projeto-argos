@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query'
 import { User, Network, Map, Landmark, BarChart2, Search, Download, AlertTriangle } from 'lucide-react'
 import { MapContainer, TileLayer, CircleMarker, Tooltip as LeafletTooltip } from 'react-leaflet'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
-import 'leaflet/dist/leaflet.css'
 import toast from 'react-hot-toast'
 
 import { dbRelatorios } from '@/lib/db/relatorios'
@@ -472,7 +471,7 @@ export default function RelatoriosPage() {
                             {pieDataFaccoes.length === 0 ? (
                                 <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: 13 }}>Sem investigados faccionados</div>
                             ) : (
-                                <ResponsiveContainer width="100%" height="100%">
+                                <ResponsiveContainer width="100%" height={220} minWidth={0}>
                                     <PieChart>
                                         <Pie data={pieDataFaccoes} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                                             {pieDataFaccoes.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
