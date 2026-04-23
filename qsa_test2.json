@@ -1,0 +1,190 @@
+{
+  "abertura": "30/01/1996",
+  "situacao": "ATIVA",
+  "tipo": "MATRIZ",
+  "nome": "FERPAM COM DE FERRAMENTAS PARAFUSOS E MAQUINAS LTDA",
+  "fantasia": "FERPAM",
+  "porte": "DEMAIS",
+  "natureza_juridica": "206-2 - Sociedade Empresária Limitada",
+  "atividade_principal": [
+    {
+      "code": "46.72-9-00",
+      "text": "Comércio atacadista de ferragens e ferramentas"
+    }
+  ],
+  "atividades_secundarias": [
+    {
+      "code": "33.14-7-02",
+      "text": "Manutenção e reparação de equipamentos hidráulicos e pneumáticos, exceto válvulas"
+    },
+    {
+      "code": "33.14-7-04",
+      "text": "Manutenção e reparação de compressores"
+    },
+    {
+      "code": "33.14-7-11",
+      "text": "Manutenção e reparação de máquinas e equipamentos para agricultura e pecuária"
+    },
+    {
+      "code": "33.14-7-13",
+      "text": "Manutenção e reparação de máquinas-ferramenta"
+    },
+    {
+      "code": "45.30-7-02",
+      "text": "Comércio por atacado de pneumáticos e câmaras-de-ar"
+    },
+    {
+      "code": "45.30-7-05",
+      "text": "Comércio a varejo de pneumáticos e câmaras-de-ar"
+    },
+    {
+      "code": "46.14-1-00",
+      "text": "Representantes comerciais e agentes do comércio de máquinas, equipamentos, embarcações e aeronaves"
+    },
+    {
+      "code": "46.42-7-02",
+      "text": "Comércio atacadista de roupas e acessórios para uso profissional e de segurança do trabalho"
+    },
+    {
+      "code": "46.43-5-01",
+      "text": "Comércio atacadista de calçados"
+    },
+    {
+      "code": "46.49-4-01",
+      "text": "Comércio atacadista de equipamentos elétricos de uso pessoal e doméstico"
+    },
+    {
+      "code": "46.49-4-02",
+      "text": "Comércio atacadista de aparelhos eletrônicos de uso pessoal e doméstico"
+    },
+    {
+      "code": "46.61-3-00",
+      "text": "Comércio atacadista de máquinas, aparelhos e equipamentos para uso agropecuário; partes e peças"
+    },
+    {
+      "code": "46.65-6-00",
+      "text": "Comércio atacadista de máquinas e equipamentos para uso comercial; partes e peças"
+    },
+    {
+      "code": "46.69-9-01",
+      "text": "Comércio atacadista de bombas e compressores; partes e peças"
+    },
+    {
+      "code": "46.69-9-99",
+      "text": "Comércio atacadista de outras máquinas e equipamentos não especificados anteriormente; partes e peças"
+    },
+    {
+      "code": "46.73-7-00",
+      "text": "Comércio atacadista de material elétrico"
+    },
+    {
+      "code": "46.79-6-01",
+      "text": "Comércio atacadista de tintas, vernizes e similares"
+    },
+    {
+      "code": "46.79-6-04",
+      "text": "Comércio atacadista especializado de materiais de construção não especificados anteriormente"
+    },
+    {
+      "code": "46.81-8-05",
+      "text": "Comércio atacadista de lubrificantes"
+    },
+    {
+      "code": "46.84-2-02",
+      "text": "Comércio atacadista de solventes"
+    },
+    {
+      "code": "47.32-6-00",
+      "text": "Comércio varejista de lubrificantes"
+    },
+    {
+      "code": "47.41-5-00",
+      "text": "Comércio varejista de tintas e materiais para pintura"
+    },
+    {
+      "code": "47.42-3-00",
+      "text": "Comércio varejista de material elétrico"
+    },
+    {
+      "code": "47.44-0-01",
+      "text": "Comércio varejista de ferragens e ferramentas"
+    },
+    {
+      "code": "47.44-0-03",
+      "text": "Comércio varejista de materiais hidráulicos"
+    },
+    {
+      "code": "47.44-0-05",
+      "text": "Comércio varejista de materiais de construção não especificados anteriormente"
+    },
+    {
+      "code": "68.10-2-02",
+      "text": "Aluguel de imóveis próprios"
+    },
+    {
+      "code": "77.31-4-00",
+      "text": "Aluguel de máquinas e equipamentos agrícolas sem operador"
+    },
+    {
+      "code": "77.32-2-01",
+      "text": "Aluguel de máquinas e equipamentos para construção sem operador, exceto andaimes"
+    },
+    {
+      "code": "77.32-2-02",
+      "text": "Aluguel de andaimes"
+    },
+    {
+      "code": "77.33-1-00",
+      "text": "Aluguel de máquinas e equipamentos para escritórios"
+    },
+    {
+      "code": "77.39-0-99",
+      "text": "Aluguel de outras máquinas e equipamentos comerciais e industriais não especificados anteriormente, sem operador"
+    }
+  ],
+  "qsa": [
+    {
+      "nome": "ROSENA LOURENCO MESQUITA INACIO",
+      "qual": "22-Sócio"
+    },
+    {
+      "nome": "IVAN RICARDO NAVES INACIO",
+      "qual": "49-Sócio-Administrador"
+    }
+  ],
+  "logradouro": "Q ASR NE 55 ALAMEDA 8",
+  "numero": "SN",
+  "complemento": "QUADRAQI 7 LOTE 22A",
+  "municipio": "PALMAS",
+  "bairro": "PLANO DIRETOR NORTE",
+  "uf": "TO",
+  "cep": "77.006-534",
+  "email": "contabil@ferpam.com.br",
+  "telefone": "(63) 2111-3600/ (63) 2111-3627",
+  "data_situacao": "18/10/2003",
+  "cnpj": "01.040.887/0001-04",
+  "ultima_atualizacao": "2026-04-17T14:44:44.144Z",
+  "status": "OK",
+  "efr": "",
+  "motivo_situacao": "",
+  "situacao_especial": "",
+  "data_situacao_especial": "",
+  "capital_social": "15000000.00",
+  "simples": {
+    "optante": false,
+    "data_opcao": null,
+    "data_exclusao": null,
+    "ultima_atualizacao": "2026-04-12T23:59:59.000Z"
+  },
+  "simei": {
+    "optante": false,
+    "data_opcao": null,
+    "data_exclusao": null,
+    "ultima_atualizacao": "2026-04-12T23:59:59.000Z"
+  },
+  "extra": {},
+  "billing": {
+    "free": true,
+    "database": true
+  }
+}

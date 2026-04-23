@@ -1,0 +1,384 @@
+{
+  "cnpj": "27865757000102",
+  "razao_social": "GLOBO COMUNICACAO E PARTICIPACOES S/A",
+  "nome_fantasia": "TV/REDE/GLOBO.COM/CANAIS GLOBO/GLOBOPLAY/ELETROMIDIA",
+  "situacao_cadastral": "Ativa",
+  "data_situacao_cadastral": "2005-11-03",
+  "matriz_filial": "Matriz",
+  "data_inicio_atividade": "1986-01-31",
+  "cnae_principal": "6021700",
+  "cnaes_secundarios": [
+    "4752100",
+    "4753900",
+    "4757100",
+    "5911102",
+    "5911199",
+    "5912002",
+    "5913800",
+    "5920100",
+    "6022501",
+    "6202300",
+    "6203100",
+    "6204000",
+    "6209100",
+    "6311900",
+    "6319400",
+    "6463800",
+    "7020400",
+    "7112000",
+    "7311400",
+    "7312200",
+    "7490104",
+    "7739099",
+    "7740300",
+    "9001902",
+    "9319101",
+    "9512600"
+  ],
+  "natureza_juridica": "Sociedade Anônima Fechada",
+  "tipo_logradouro": "RUA",
+  "logradouro": "LOPES QUINTAS",
+  "numero": "303",
+  "complemento": "",
+  "bairro": "JARDIM BOTANICO",
+  "cep": "22460901",
+  "uf": "RJ",
+  "municipio": "RIO DE JANEIRO",
+  "email": "INTELIGENCIAFISCAL@TVGLOBO.COM.BR",
+  "telefones": [
+    {
+      "ddd": "21",
+      "numero": "21554551",
+      "is_fax": false
+    },
+    {
+      "ddd": "21",
+      "numero": "21554552",
+      "is_fax": false
+    },
+    {
+      "ddd": "21",
+      "numero": "25408773",
+      "is_fax": true
+    }
+  ],
+  "capital_social": "6983568523,86",
+  "porte_empresa": "Demais",
+  "opcao_simples": "",
+  "data_opcao_simples": "",
+  "opcao_mei": "",
+  "data_opcao_mei": "",
+  "QSA": [
+    {
+      "nome_socio": "PAULO DAUDT MARINHO",
+      "cnpj_cpf_socio": "***048947**",
+      "qualificacao_socio": "Diretor",
+      "data_entrada_sociedade": "2020-01-16",
+      "identificador_socio": "Pessoa Física",
+      "faixa_etaria": "41 a 50 anos"
+    },
+    {
+      "nome_socio": "RAYMUNDO COSTA PINTO BARROS",
+      "cnpj_cpf_socio": "***486498**",
+      "qualificacao_socio": "Diretor",
+      "data_entrada_sociedade": "2021-03-15",
+      "identificador_socio": "Pessoa Física",
+      "faixa_etaria": "61 a 70 anos"
+    },
+    {
+      "nome_socio": "AMAURI SERGIO SOARES",
+      "cnpj_cpf_socio": "***189808**",
+      "qualificacao_socio": "Diretor",
+      "data_entrada_sociedade": "2022-02-11",
+      "identificador_socio": "Pessoa Física",
+      "faixa_etaria": "51 a 60 anos"
+    },
+    {
+      "nome_socio": "GEORGES AYOUB RICHE",
+      "cnpj_cpf_socio": "***610997**",
+      "qualificacao_socio": "Diretor",
+      "data_entrada_sociedade": "2023-12-05",
+      "identificador_socio": "Pessoa Física",
+      "faixa_etaria": "41 a 50 anos"
+    },
+    {
+      "nome_socio": "PEDRO BORGES GARCIA",
+      "cnpj_cpf_socio": "***050187**",
+      "qualificacao_socio": "Diretor",
+      "data_entrada_sociedade": "2024-03-21",
+      "identificador_socio": "Pessoa Física",
+      "faixa_etaria": "51 a 60 anos"
+    },
+    {
+      "nome_socio": "ALEXANDRE GUERRERO MARTINS",
+      "cnpj_cpf_socio": "***145888**",
+      "qualificacao_socio": "Diretor",
+      "data_entrada_sociedade": "2026-01-29",
+      "identificador_socio": "Pessoa Física",
+      "faixa_etaria": "51 a 60 anos"
+    }
+  ],
+  "cno": {
+    "updated_at": "2026-04-22T04:41:18.0000000+00:00",
+    "obras": [
+      {
+        "cno": "512291334570",
+        "nome": "GLOBO COMUNICACAO E PARTICIPACOES SA",
+        "nome_empresarial": "GLOBO COMUNICACAO E PARTICIPACOES S/A",
+        "situacao": {
+          "codigo": "15",
+          "descricao": "ENCERRADA"
+        },
+        "data_inicio": "2014-10-16",
+        "data_inicio_responsabilidade": "2014-10-16",
+        "data_registro": "2021-10-08",
+        "data_situacao": "2021-10-17",
+        "cep": "22460040",
+        "uf": "RJ",
+        "codigo_municipio": "6001",
+        "municipio": "RIO DE JANEIRO",
+        "tipo_logradouro": "RUA",
+        "logradouro": "RUA VON MARTIUS, 20",
+        "numero": "20",
+        "bairro": "JARDIM BOTANICO",
+        "complemento": "",
+        "unidade_medida": "m2",
+        "area_total": "19063.08",
+        "cno_vinculado": "",
+        "codigo_pais": "105",
+        "pais": "BRASIL",
+        "qualificacao_responsavel": {
+          "codigo": "0070",
+          "descricao": "Proprietário do Imóvel"
+        },
+        "codigo_localizacao": ""
+      },
+      {
+        "cno": "512403894972",
+        "nome": "GLOBO COMUNICACOES E PARTICIPACOES SA",
+        "nome_empresarial": "GLOBO COMUNICACAO E PARTICIPACOES S/A",
+        "situacao": {
+          "codigo": "15",
+          "descricao": "ENCERRADA"
+        },
+        "data_inicio": "2017-07-20",
+        "data_inicio_responsabilidade": "2017-07-20",
+        "data_registro": "2019-02-21",
+        "data_situacao": "2021-10-17",
+        "cep": "22780191",
+        "uf": "RJ",
+        "codigo_municipio": "6001",
+        "municipio": "RIO DE JANEIRO",
+        "tipo_logradouro": "ESTRADA",
+        "logradouro": "ESTRADA DA CURICICA,",
+        "numero": "3003",
+        "bairro": "CURICICA",
+        "complemento": "",
+        "unidade_medida": "m2",
+        "area_total": "26636.27",
+        "cno_vinculado": "",
+        "codigo_pais": "105",
+        "pais": "BRASIL",
+        "qualificacao_responsavel": {
+          "codigo": "0070",
+          "descricao": "Proprietário do Imóvel"
+        },
+        "codigo_localizacao": ""
+      },
+      {
+        "cno": "600205070775",
+        "nome": "GLOBO COMUNICACAO E PARTICIPACOES S/A",
+        "nome_empresarial": "GLOBO COMUNICACAO E PARTICIPACOES S/A",
+        "situacao": {
+          "codigo": "02",
+          "descricao": "ATIVA"
+        },
+        "data_inicio": "2013-08-06",
+        "data_inicio_responsabilidade": "2013-08-06",
+        "data_registro": "2021-10-13",
+        "data_situacao": "2013-08-06",
+        "cep": "01226010",
+        "uf": "SP",
+        "codigo_municipio": "7107",
+        "municipio": "SÃO PAULO",
+        "tipo_logradouro": "RUA",
+        "logradouro": "R DAS PALMEIRAS, 00032",
+        "numero": "32",
+        "bairro": "SANTA CECILIA",
+        "complemento": "",
+        "unidade_medida": "m2",
+        "area_total": "5189.68",
+        "cno_vinculado": "",
+        "codigo_pais": "105",
+        "pais": "BRASIL",
+        "qualificacao_responsavel": {
+          "codigo": "0070",
+          "descricao": "Proprietário do Imóvel"
+        },
+        "codigo_localizacao": ""
+      },
+      {
+        "cno": "900010399871",
+        "nome": "GLOBO.COM",
+        "nome_empresarial": "CONTRASTE ARQUITETURA E CONSTRUCAO LIMITADA",
+        "situacao": {
+          "codigo": "01",
+          "descricao": "NULA"
+        },
+        "data_inicio": "2019-07-06",
+        "data_inicio_responsabilidade": "2019-07-06",
+        "data_registro": "2019-07-10",
+        "data_situacao": "2024-05-22",
+        "cep": "22640100",
+        "uf": "RJ",
+        "codigo_municipio": "6001",
+        "municipio": "RIO DE JANEIRO",
+        "tipo_logradouro": "AVENIDA",
+        "logradouro": "DAS AMERICAS",
+        "numero": "700",
+        "bairro": "BARRA DA TIJUCA",
+        "complemento": "BL 02 A / 3 PAV",
+        "unidade_medida": "m2",
+        "area_total": "1000.00",
+        "cno_vinculado": "",
+        "codigo_pais": "105",
+        "pais": "BRASIL",
+        "qualificacao_responsavel": {
+          "codigo": "0053",
+          "descricao": "Pessoa Jurídica Construtora"
+        },
+        "codigo_localizacao": ""
+      },
+      {
+        "cno": "900186967972",
+        "nome": "LUCENTE ENGENHARIA LTDA",
+        "nome_empresarial": "LUCENTE ENGENHARIA LTDA",
+        "situacao": {
+          "codigo": "02",
+          "descricao": "ATIVA"
+        },
+        "data_inicio": "2024-04-05",
+        "data_inicio_responsabilidade": "2024-04-05",
+        "data_registro": "2024-04-05",
+        "data_situacao": "2024-04-05",
+        "cep": "22780086",
+        "uf": "RJ",
+        "codigo_municipio": "6001",
+        "municipio": "RIO DE JANEIRO",
+        "tipo_logradouro": "ESTRADA",
+        "logradouro": "DOS BANDEIRANTES",
+        "numero": "6700",
+        "bairro": "CURICICA",
+        "complemento": "",
+        "unidade_medida": "m2",
+        "area_total": "400.00",
+        "cno_vinculado": "",
+        "codigo_pais": "105",
+        "pais": "BRASIL",
+        "qualificacao_responsavel": {
+          "codigo": "0053",
+          "descricao": "Pessoa Jurídica Construtora"
+        },
+        "codigo_localizacao": "589R2HVV+2R"
+      },
+      {
+        "cno": "900214899777",
+        "nome": "LUCENTE ENGENHARIA LTDA",
+        "nome_empresarial": "LUCENTE ENGENHARIA LTDA",
+        "situacao": {
+          "codigo": "02",
+          "descricao": "ATIVA"
+        },
+        "data_inicio": "2024-10-25",
+        "data_inicio_responsabilidade": "2024-10-25",
+        "data_registro": "2024-10-25",
+        "data_situacao": "2024-10-25",
+        "cep": "22640101",
+        "uf": "RJ",
+        "codigo_municipio": "6001",
+        "municipio": "RIO DE JANEIRO",
+        "tipo_logradouro": "AVENIDA",
+        "logradouro": "DAS AMERICAS",
+        "numero": "1650",
+        "bairro": "BARRA DA TIJUCA",
+        "complemento": "Bl 05 Lj 101 Sl 201 e 301",
+        "unidade_medida": "m2",
+        "area_total": "80.00",
+        "cno_vinculado": "",
+        "codigo_pais": "105",
+        "pais": "BRASIL",
+        "qualificacao_responsavel": {
+          "codigo": "0053",
+          "descricao": "Pessoa Jurídica Construtora"
+        },
+        "codigo_localizacao": "588RXMX9+WH"
+      },
+      {
+        "cno": "900221390578",
+        "nome": "RMZ CONSTRUTORA LTDA.",
+        "nome_empresarial": "RMZ CONSTRUTORA LTDA.",
+        "situacao": {
+          "codigo": "02",
+          "descricao": "ATIVA"
+        },
+        "data_inicio": "2024-11-21",
+        "data_inicio_responsabilidade": "2024-11-21",
+        "data_registro": "2024-12-13",
+        "data_situacao": "2024-11-21",
+        "cep": "22780195",
+        "uf": "RJ",
+        "codigo_municipio": "6001",
+        "municipio": "RIO DE JANEIRO",
+        "tipo_logradouro": "ESTRADA",
+        "logradouro": "DE CURICICA",
+        "numero": "3003",
+        "bairro": "CURICICA",
+        "complemento": "LOT 1 PAL 49093",
+        "unidade_medida": "m2",
+        "area_total": "600.00",
+        "cno_vinculado": "",
+        "codigo_pais": "105",
+        "pais": "BRASIL",
+        "qualificacao_responsavel": {
+          "codigo": "0053",
+          "descricao": "Pessoa Jurídica Construtora"
+        },
+        "codigo_localizacao": "00003J36+J8"
+      },
+      {
+        "cno": "900267199770",
+        "nome": "HBA ENGENHARIA PROJETOS E CONSTRUCOES LTDA",
+        "nome_empresarial": "HBA ENGENHARIA PROJETOS E CONSTRUCOES LTDA",
+        "situacao": {
+          "codigo": "02",
+          "descricao": "ATIVA"
+        },
+        "data_inicio": "2025-01-02",
+        "data_inicio_responsabilidade": "2025-01-02",
+        "data_registro": "2025-12-11",
+        "data_situacao": "2025-01-02",
+        "cep": "22460901",
+        "uf": "RJ",
+        "codigo_municipio": "6001",
+        "municipio": "RIO DE JANEIRO",
+        "tipo_logradouro": "RUA",
+        "logradouro": "LOPES QUINTAS 303",
+        "numero": "303",
+        "bairro": "JARDIM BOTANICO",
+        "complemento": "",
+        "unidade_medida": "m2",
+        "area_total": "300.00",
+        "cno_vinculado": "",
+        "codigo_pais": "105",
+        "pais": "BRASIL",
+        "qualificacao_responsavel": {
+          "codigo": "0053",
+          "descricao": "Pessoa Jurídica Construtora"
+        },
+        "codigo_localizacao": "589R2QPH+6G"
+      }
+    ],
+    "cnpj": "27865757000102"
+  },
+  "rntrc": null
+}
