@@ -41,6 +41,58 @@ function EmptyChartState({ title }: { title: string }) {
     )
 }
 
+function MapFilterControl({ current, options, onChange }: { current: string, options: string[], onChange: (val: string) => void }) {
+    return (
+        <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
+            <div style={{
+                backgroundColor: 'var(--bg-primary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '6px',
+                padding: '8px 12px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                width: '180px'
+            }}>
+                <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase' }}>Filtro por Facção</label>
+                <select
+                    value={current}
+                    onChange={e => onChange(e.target.value)}
+                    style={{
+                        backgroundColor: 'var(--bg-secondary)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '4px',
+                        color: 'var(--text-primary)',
+                        fontSize: '13px',
+                        padding: '4px 8px',
+                        outline: 'none',
+                        cursor: 'pointer'
+                    }}
+                >
+                    <option value="Todas">Todos</option>
+                    {options.map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                </select>
+            </div>
+            {current !== 'Todas' && (
+                <div style={{
+                    backgroundColor: 'rgba(247, 129, 102, 0.1)',
+                    border: '1px solid #F78166',
+                    color: '#F78166',
+                    padding: '4px 12px',
+                    borderRadius: '16px',
+                    fontSize: '11px',
+                    fontWeight: 600
+                }}>
+                    Filtrando: {current}
+                </div>
+            )}
+        </div>
+    )
+}
+
 function MapSearchControl() {
     const map = useMap()
     const [query, setQuery] = useState('')
@@ -138,6 +190,8 @@ export default function DashboardPage() {
         refetchInterval: 30000 // 30 segundos
     })
 
+    const [faccaoFiltro, setFaccaoFiltro] = useState('Todas')
+
     useEffect(() => {
         registrarAudit('ACESSO_DASHBOARD', 'dashboard')
     }, [])
@@ -163,6 +217,17 @@ export default function DashboardPage() {
         mandadosPorUF: [],
         pontosCalor: []
     }
+
+    const uniqueFaccoes = Array.from(new Set([
+        ...stats.distribuicaoFaccoes.map(f => f.faccao),
+        ...(stats.pontosCalor || []).map((p: any) => p.faccao)
+    ])).sort();
+
+    const listaFaccoes = uniqueFaccoes.filter(f => f !== 'Todas');
+
+    const pontosFiltrados = (stats.pontosCalor || []).filter((p: any) =>
+        faccaoFiltro === 'Todas' || p.faccao === faccaoFiltro
+    ).map((p: any) => [p.lat, p.lng] as [number, number])
 
     return (
         <div className="dashboard-grid">
@@ -280,7 +345,12 @@ export default function DashboardPage() {
                             }
                         />
                         <MapSearchControl />
-                        {stats.pontosCalor && <HeatmapLayer points={stats.pontosCalor as any} theme={theme} />}
+                        <MapFilterControl
+                            current={faccaoFiltro}
+                            options={listaFaccoes}
+                            onChange={setFaccaoFiltro}
+                        />
+                        {pontosFiltrados.length > 0 && <HeatmapLayer points={pontosFiltrados as any} theme={theme} />}
                     </MapContainer>
                 )}
             </div>

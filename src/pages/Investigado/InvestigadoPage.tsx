@@ -11,6 +11,7 @@ import { InvestigadoEditModal } from '@/components'
 import { MapPin, ChevronDown, ChevronUp } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import { useThemeStore } from '@/store/themeStore'
+import { supabase } from '@/lib/supabase'
 
 const VisNetworkGraph = lazy(() => import('@/components/VisNetworkGraph'))
 
@@ -74,7 +75,7 @@ function InfoRow({ label, value }: any) {
     )
 }
 
-function HeaderDossie({ data, onGerarDII, podeEditar, podeRelatorio, onRegistrarCautelar, onEdit }: any) {
+function HeaderDossie({ data, onGerarDII, podeEditar, podeRelatorio, onRegistrarCautelar, onEdit, isPepLoading, pepData }: any) {
     const getAvatarColor = (doc: string) => {
         const angle = parseInt((doc || '000').replace(/\D/g, '').slice(0, 6) || '0', 10) % 360
         return `hsl(${angle}, 60%, 35%)`
@@ -108,7 +109,43 @@ function HeaderDossie({ data, onGerarDII, podeEditar, podeRelatorio, onRegistrar
                             }}>
                                 {!isPJ ? 'PF' : 'PJ'}
                             </span>
+                            {isPepLoading && (
+                                <div className="skeleton animate-pulse" style={{ width: 32, height: 20, borderRadius: 12, display: 'inline-block' }}></div>
+                            )}
+                            {pepData && (
+                                <span className="badge" style={{
+                                    backgroundColor: 'rgba(248, 81, 73, 0.1)',
+                                    color: '#F85149',
+                                    border: '1px solid rgba(248, 81, 73, 0.2)',
+                                    fontWeight: 800,
+                                    letterSpacing: '0.05em'
+                                }}>
+                                    PEP
+                                </span>
+                            )}
                         </div>
+                        {pepData && (
+                            <div style={{
+                                marginTop: 12,
+                                padding: '12px 16px',
+                                backgroundColor: 'rgba(248, 81, 73, 0.05)',
+                                borderRadius: 8,
+                                border: '1px solid rgba(248, 81, 73, 0.2)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 6,
+                                maxWidth: 'fit-content'
+                            }}>
+                                <div style={{ fontSize: 10, color: '#F85149', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Pessoa Politicamente Exposta Detectada</div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                    <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 600 }}>{pepData.descricaoFuncao}</div>
+                                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{pepData.nomeOrgao}</div>
+                                    {pepData.dataInicioExercicio && (
+                                        <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>Início: {formatDate(pepData.dataInicioExercicio)}</div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                         {data.vulgo && (
                             <div style={{ fontFamily: 'IBM Plex Mono', fontSize: 14, color: '#F78166', marginTop: 4 }}>
                                 Vulgo: {data.vulgo}
@@ -380,6 +417,9 @@ export default function InvestigadoPage() {
     const user = useAuthStore(s => s.user)
     const { can } = usePermission()
 
+    const [isPepLoading, setIsPepLoading] = useState(false)
+    const [pepData, setPepData] = useState<any>(null)
+
     const { data, isLoading, error } = useQuery({
         queryKey: ['investigado', id],
         queryFn: () => buscarPorId(id!),
@@ -399,6 +439,27 @@ export default function InvestigadoPage() {
                 .catch(err => console.error('[ReceitaWS] Falha no auto-fetch:', err))
         }
     }, [id, data?.tipo, data?.ultima_consulta_ws])
+
+    useEffect(() => {
+        if (data?.tipo === 'PESSOA_FISICA' && data.cpf) {
+            const checkPEP = async () => {
+                setIsPepLoading(true)
+                try {
+                    const { data: pepResult, error } = await supabase.functions.invoke('check-pep', {
+                        body: { cpf: data.cpf }
+                    })
+                    if (!error && pepResult) {
+                        setPepData(pepResult)
+                    }
+                } catch (err) {
+                    console.error('[PEP] Erro:', err)
+                } finally {
+                    setIsPepLoading(false)
+                }
+            }
+            checkPEP()
+        }
+    }, [data?.id, data?.cpf, data?.tipo])
 
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
@@ -443,6 +504,8 @@ export default function InvestigadoPage() {
                 podeRelatorio={can('visualizar-relatorios')}
                 onRegistrarCautelar={() => navigate(`/cautelares?investigadoId=${id}`)}
                 onEdit={() => setIsEditModalOpen(true)}
+                isPepLoading={isPepLoading}
+                pepData={pepData}
             />
 
             <InvestigadoEditModal

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { X, MapPin, Plus, Trash2 } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet'
+import { useThemeStore } from '@/store/themeStore'
 import { atualizar } from '@/lib/db/investigados'
 import { supabase } from '@/lib/supabase'
 import { registrarAudit } from '@/lib/audit'
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function InvestigadoEditModal({ open, onClose, data, onSalvo }: Props) {
+    const { theme } = useThemeStore()
     const [loading, setLoading] = useState(false)
     const [mapOpen, setMapOpen] = useState(false)
     const [coords, setCoords] = useState<[number, number] | null>(null)
@@ -172,17 +174,18 @@ export function InvestigadoEditModal({ open, onClose, data, onSalvo }: Props) {
     return (
         <div className="modal-overlay" style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(13, 17, 23, 0.95)', display: 'flex',
+            backgroundColor: theme === 'dark' ? 'rgba(13, 17, 23, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+            display: 'flex',
             alignItems: 'center', justifyContent: 'center', zIndex: 2000
         }}>
             <div className="modal-card" style={{
-                backgroundColor: '#161B22', border: '1px solid #30363D',
+                backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)',
                 borderRadius: '8px', width: '700px', maxHeight: '90vh', overflowY: 'auto',
                 padding: '32px', position: 'relative'
             }}>
                 <button onClick={onClose} style={{
                     position: 'absolute', top: 20, right: 20, background: 'none',
-                    border: 'none', color: '#8B949E', cursor: 'pointer'
+                    border: 'none', color: 'var(--text-secondary)', cursor: 'pointer'
                 }}>
                     <X size={20} />
                 </button>
@@ -290,7 +293,7 @@ export function InvestigadoEditModal({ open, onClose, data, onSalvo }: Props) {
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {enderecos.map((end, idx) => (
-                                <div key={idx} style={{ padding: '16px', backgroundColor: '#0D1117', border: '1px solid #30363D', borderRadius: 8 }}>
+                                <div key={idx} style={{ padding: '16px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 8 }}>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                                             <div style={{ flex: 1 }}>
@@ -302,7 +305,7 @@ export function InvestigadoEditModal({ open, onClose, data, onSalvo }: Props) {
                                                     onChange={e => updateEndereco(idx, 'logradouro', e.target.value)}
                                                 />
                                             </div>
-                                            <button className="chip" onClick={() => removeEndereco(idx)} style={{ borderColor: '#F85149', color: '#F85149', alignSelf: 'flex-end', height: '32px' }}>
+                                            <button className="chip" onClick={() => removeEndereco(idx)} style={{ borderColor: 'var(--danger-color)', color: 'var(--danger-color)', alignSelf: 'flex-end', height: '32px' }}>
                                                 <Trash2 size={14} />
                                             </button>
                                         </div>
@@ -313,8 +316,8 @@ export function InvestigadoEditModal({ open, onClose, data, onSalvo }: Props) {
                                                 style={{
                                                     display: 'flex', alignItems: 'center', gap: '6px',
                                                     backgroundColor: (end.lat && end.lng) ? 'rgba(63, 185, 80, 0.1)' : 'transparent',
-                                                    borderColor: (end.lat && end.lng) ? '#3FB950' : '#30363D',
-                                                    color: (end.lat && end.lng) ? '#3FB950' : '#8B949E'
+                                                    borderColor: (end.lat && end.lng) ? 'var(--success-color)' : 'var(--border-color)',
+                                                    color: (end.lat && end.lng) ? 'var(--success-color)' : 'var(--text-secondary)'
                                                 }}
                                                 onClick={() => {
                                                     setCurrentAddressIdx(idx)
@@ -329,7 +332,7 @@ export function InvestigadoEditModal({ open, onClose, data, onSalvo }: Props) {
                                             {(end.lat && end.lng) && (
                                                 <button
                                                     className="chip"
-                                                    style={{ border: 'none', color: '#F85149', fontSize: '11px' }}
+                                                    style={{ border: 'none', color: 'var(--danger-color)', fontSize: '11px' }}
                                                     onClick={() => {
                                                         updateEndereco(idx, 'lat', null)
                                                         updateEndereco(idx, 'lng', null)
@@ -341,7 +344,7 @@ export function InvestigadoEditModal({ open, onClose, data, onSalvo }: Props) {
                                         </div>
                                     </div>
                                     {end.lat && (
-                                        <div style={{ fontSize: '10px', color: '#8B949E', marginTop: '12px', fontFamily: 'IBM Plex Mono' }}>
+                                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '12px', fontFamily: 'IBM Plex Mono' }}>
                                             Coordenadas: {end.lat.toFixed(6)}, {end.lng.toFixed(6)}
                                         </div>
                                     )}
@@ -352,7 +355,7 @@ export function InvestigadoEditModal({ open, onClose, data, onSalvo }: Props) {
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '40px' }}>
-                    <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#8B949E', cursor: 'pointer' }}>Cancelar</button>
+                    <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>Cancelar</button>
                     <button
                         onClick={handleSave}
                         disabled={loading}
@@ -371,11 +374,12 @@ export function InvestigadoEditModal({ open, onClose, data, onSalvo }: Props) {
             {mapOpen && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex',
+                    backgroundColor: theme === 'dark' ? 'rgba(13, 17, 23, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                    display: 'flex',
                     alignItems: 'center', justifyContent: 'center', zIndex: 2100
                 }}>
                     <div style={{
-                        backgroundColor: '#161B22', border: '1px solid #30363D',
+                        backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)',
                         borderRadius: '8px', width: '600px', padding: '24px'
                     }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -395,14 +399,17 @@ export function InvestigadoEditModal({ open, onClose, data, onSalvo }: Props) {
                         </div>
                         <div style={{ height: '350px', borderRadius: '8px', overflow: 'hidden' }}>
                             <MapContainer center={[-10.1843, -48.3336]} zoom={13} style={{ height: '100%', width: '100%' }}>
-                                <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+                                <TileLayer url={theme === 'dark'
+                                    ? "https://s.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png"
+                                    : "https://s.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png"
+                                } />
                                 {coords && <ChangeMapView center={coords} />}
                                 <MapEvents />
                             </MapContainer>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
                             <button onClick={() => setMapOpen(false)} style={{
-                                backgroundColor: '#F78166', color: 'white', border: 'none',
+                                backgroundColor: 'var(--accent-color)', color: 'white', border: 'none',
                                 padding: '10px 20px', borderRadius: '6px', cursor: 'pointer'
                             }}>
                                 Confirmar localização

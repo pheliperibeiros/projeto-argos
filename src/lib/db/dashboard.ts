@@ -22,7 +22,7 @@ export async function buscarStats() {
         supabase.from('cautelares').select('*', { count: 'exact', head: true }).eq('status', 'Cumprido').gte('created_at', anoCorrente),
         supabase.from('investigados').select('*', { count: 'exact', head: true }).not('faccionado', 'is', null).neq('faccionado', '').neq('faccionado', 'Nenhuma').neq('faccionado', 'Não Faccionado'),
         supabase.from('investigados').select('faccionado').not('faccionado', 'is', null).neq('faccionado', '').neq('faccionado', 'Nenhuma').neq('faccionado', 'Não Faccionado'),
-        supabase.from('enderecos').select('lat, lng').not('lat', 'is', null),
+        supabase.from('enderecos').select('lat, lng, investigados(faccionado)').not('lat', 'is', null),
         supabase.from('casos').select('natureza, tags').eq('status', 'ATIVO'),
         supabase.from('dashboard_historico_casos').select('*').order('ano_mes', { ascending: true })
     ])
@@ -139,7 +139,17 @@ export async function buscarStats() {
         rankingTags,
         distribuicaoFaccoes,
         mandadosPorUF,
-        pontosCalor: (enderecos || []).map((e: any) => [Number(e.lat), Number(e.lng)])
+        pontosCalor: (enderecos || []).map((e: any) => {
+            const f = e.investigados?.faccionado?.trim();
+            const faccao = (!f || f === 'Nenhuma' || f === 'Não Faccionado' || f === 'Não Faccionados')
+                ? 'Não Faccionados'
+                : f;
+            return {
+                lat: Number(e.lat),
+                lng: Number(e.lng),
+                faccao
+            };
+        })
     }
 }
 
