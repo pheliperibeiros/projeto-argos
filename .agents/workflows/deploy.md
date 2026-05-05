@@ -10,7 +10,8 @@ Este workflow envia as alterações do código para o GitHub e atualiza o site n
 - Git configurado e autenticado
 - Netlify CLI logado (`netlify login`)
 - Repositório remoto: `https://github.com/pheliperibeiros/projeto-argos.git`
-- Site Netlify ID: `8d0f8ba0-d4f1-41ce-9710-ae3ceaba79de`
+- Site Netlify ID: `736fb0b6-4956-4768-96c7-dacfe6c722b8`
+- URL: `https://sistemaargos.netlify.app`
 
 ## Passos
 
@@ -48,4 +49,4 @@ npm run build
 
 7. Verificar o deploy:
    - Usar a ferramenta `netlify-deploy-services-reader` com `get-deploy` para verificar o status
-   - O site estará disponível em: https://projeto-argos.netlify.app
+   - O site estará disponível em: https://sistemaargos.netlify.app
