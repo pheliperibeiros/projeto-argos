@@ -147,7 +147,7 @@ function HeaderDossie({ data, onGerarDII, podeEditar, podeRelatorio, onRegistrar
                             </div>
                         )}
                         {data.vulgo && (
-                            <div style={{ fontFamily: 'IBM Plex Mono', fontSize: 14, color: '#F78166', marginTop: 4 }}>
+                            <div style={{ fontFamily: 'IBM Plex Mono', fontSize: 14, color: 'var(--accent-color)', marginTop: 4 }}>
                                 Vulgo: {data.vulgo}
                             </div>
                         )}
@@ -465,7 +465,7 @@ export default function InvestigadoPage() {
 
     if (isLoading) return <InvestigadoSkeleton />
     if (error || !data) return (
-        <div style={{ padding: 40, textAlign: 'center', color: '#F78166' }}>
+        <div style={{ padding: 40, textAlign: 'center', color: 'var(--accent-color)' }}>
             Investigado não encontrado. <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: '#58A6FF', cursor: 'pointer', textDecoration: 'underline' }}>Voltar</button>
         </div>
     )

@@ -99,8 +99,8 @@ export default function CautelaresPage() {
                     onClick={() => setAba('registrar')}
                     style={{
                         padding: '12px 16px', background: 'none', border: 'none',
-                        color: aba === 'registrar' ? '#F78166' : 'var(--text-secondary)',
-                        borderBottom: aba === 'registrar' ? '2px solid #F78166' : 'none',
+                        color: aba === 'registrar' ? 'var(--accent-color)' : 'var(--text-secondary)',
+                        borderBottom: aba === 'registrar' ? '2px solid var(--accent-color)' : 'none',
                         cursor: 'pointer', fontWeight: 600
                     }}
                 >
@@ -110,8 +110,8 @@ export default function CautelaresPage() {
                     onClick={() => setAba('historico')}
                     style={{
                         padding: '12px 16px', background: 'none', border: 'none',
-                        color: aba === 'historico' ? '#F78166' : 'var(--text-secondary)',
-                        borderBottom: aba === 'historico' ? '2px solid #F78166' : 'none',
+                        color: aba === 'historico' ? 'var(--accent-color)' : 'var(--text-secondary)',
+                        borderBottom: aba === 'historico' ? '2px solid var(--accent-color)' : 'none',
                         cursor: 'pointer', fontWeight: 600
                     }}
                 >
@@ -130,8 +130,8 @@ export default function CautelaresPage() {
                                     key={n}
                                     style={{
                                         width: '32px', height: '32px', borderRadius: '50%',
-                                        backgroundColor: passo >= n ? '#F78166' : 'var(--bg-secondary)',
-                                        border: '2px solid', borderColor: passo >= n ? '#F78166' : 'var(--border-color)',
+                                        backgroundColor: passo >= n ? 'var(--accent-color)' : 'var(--bg-secondary)',
+                                        border: '2px solid', borderColor: passo >= n ? 'var(--accent-color)' : 'var(--border-color)',
                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                                         color: passo >= n ? 'var(--bg-secondary)' : 'var(--text-secondary)', fontWeight: 'bold', fontSize: '14px'
                                     }}
@@ -145,7 +145,7 @@ export default function CautelaresPage() {
                     {/* Passo 1: Processo */}
                     {passo === 1 && (
                         <div className="search-header" style={{ padding: '24px' }}>
-                            <h4 style={{ margin: '0 0 16px 0', color: '#F78166' }}>Passo 1: Selecionar Processo</h4>
+                            <h4 style={{ margin: '0 0 16px 0', color: 'var(--accent-color)' }}>Passo 1: Selecionar Processo</h4>
                             <div style={{ position: 'relative' }}>
                                 <Search size={18} color="var(--text-secondary)" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
                                 <input
@@ -194,15 +194,15 @@ export default function CautelaresPage() {
                     {/* Passo 2: Tipo */}
                     {passo === 2 && (
                         <div className="search-header" style={{ padding: '24px' }}>
-                            <h4 style={{ margin: '0 0 24px 0', color: '#F78166' }}>Passo 2: Tipo de Medida</h4>
+                            <h4 style={{ margin: '0 0 24px 0', color: 'var(--accent-color)' }}>Passo 2: Tipo de Medida</h4>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', width: '100%' }}>
                                 <button
                                     onClick={() => setTipoSelecionado('BUSCA_APREENSAO')}
                                     style={{
                                         height: '90px', borderRadius: '8px', border: '2px solid',
                                         backgroundColor: tipoSelecionado === 'BUSCA_APREENSAO' ? 'rgba(247, 129, 102, 0.1)' : 'transparent',
-                                        borderColor: tipoSelecionado === 'BUSCA_APREENSAO' ? '#F78166' : 'var(--border-color)',
-                                        color: tipoSelecionado === 'BUSCA_APREENSAO' ? '#F78166' : 'var(--text-secondary)',
+                                        borderColor: tipoSelecionado === 'BUSCA_APREENSAO' ? 'var(--accent-color)' : 'var(--border-color)',
+                                        color: tipoSelecionado === 'BUSCA_APREENSAO' ? 'var(--accent-color)' : 'var(--text-secondary)',
                                         cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px'
                                     }}
                                 >
@@ -213,8 +213,8 @@ export default function CautelaresPage() {
                                     style={{
                                         height: '90px', borderRadius: '8px', border: '2px solid',
                                         backgroundColor: tipoSelecionado === 'PRISAO_CAUTELAR' ? 'rgba(247, 129, 102, 0.1)' : 'transparent',
-                                        borderColor: tipoSelecionado === 'PRISAO_CAUTELAR' ? '#F78166' : 'var(--border-color)',
-                                        color: tipoSelecionado === 'PRISAO_CAUTELAR' ? '#F78166' : 'var(--text-secondary)',
+                                        borderColor: tipoSelecionado === 'PRISAO_CAUTELAR' ? 'var(--accent-color)' : 'var(--border-color)',
+                                        color: tipoSelecionado === 'PRISAO_CAUTELAR' ? 'var(--accent-color)' : 'var(--text-secondary)',
                                         cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px'
                                     }}
                                 >
@@ -225,8 +225,8 @@ export default function CautelaresPage() {
                                     style={{
                                         height: '90px', borderRadius: '8px', border: '2px solid',
                                         backgroundColor: tipoSelecionado === 'SIGILO_BANCARIO' ? 'rgba(247, 129, 102, 0.1)' : 'transparent',
-                                        borderColor: tipoSelecionado === 'SIGILO_BANCARIO' ? '#F78166' : 'var(--border-color)',
-                                        color: tipoSelecionado === 'SIGILO_BANCARIO' ? '#F78166' : 'var(--text-secondary)',
+                                        borderColor: tipoSelecionado === 'SIGILO_BANCARIO' ? 'var(--accent-color)' : 'var(--border-color)',
+                                        color: tipoSelecionado === 'SIGILO_BANCARIO' ? 'var(--accent-color)' : 'var(--text-secondary)',
                                         cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', textAlign: 'center'
                                     }}
                                 >
@@ -237,8 +237,8 @@ export default function CautelaresPage() {
                                     style={{
                                         height: '90px', borderRadius: '8px', border: '2px solid',
                                         backgroundColor: tipoSelecionado === 'SIGILO_TELEMATICO' ? 'rgba(247, 129, 102, 0.1)' : 'transparent',
-                                        borderColor: tipoSelecionado === 'SIGILO_TELEMATICO' ? '#F78166' : 'var(--border-color)',
-                                        color: tipoSelecionado === 'SIGILO_TELEMATICO' ? '#F78166' : 'var(--text-secondary)',
+                                        borderColor: tipoSelecionado === 'SIGILO_TELEMATICO' ? 'var(--accent-color)' : 'var(--border-color)',
+                                        color: tipoSelecionado === 'SIGILO_TELEMATICO' ? 'var(--accent-color)' : 'var(--text-secondary)',
                                         cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', textAlign: 'center'
                                     }}
                                 >
@@ -257,7 +257,7 @@ export default function CautelaresPage() {
                     {passo === 3 && (
                         <div className="search-header" style={{ padding: '24px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                                <h4 style={{ margin: 0, color: '#F78166' }}>Passo 3: Selecionar Alvos</h4>
+                                <h4 style={{ margin: 0, color: 'var(--accent-color)' }}>Passo 3: Selecionar Alvos</h4>
                                 <div style={{ display: 'flex', gap: '8px' }}>
                                     <button className="chip" onClick={() => setAlvosSelecionados(casoSelecionado.investigados.map((i: any) => i.id))}>Todos</button>
                                     <button className="chip" onClick={() => setAlvosSelecionados([])}>Nenhum</button>
@@ -277,12 +277,12 @@ export default function CautelaresPage() {
                                         style={{
                                             padding: '12px 16px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)',
                                             borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '16px',
-                                            borderColor: alvosSelecionados.includes(i.id) ? '#F78166' : 'var(--border-color)'
+                                            borderColor: alvosSelecionados.includes(i.id) ? 'var(--accent-color)' : 'var(--border-color)'
                                         }}
                                     >
                                         <div style={{
                                             width: '18px', height: '18px', borderRadius: '4px', border: '2px solid var(--border-color)',
-                                            backgroundColor: alvosSelecionados.includes(i.id) ? '#F78166' : 'transparent',
+                                            backgroundColor: alvosSelecionados.includes(i.id) ? 'var(--accent-color)' : 'transparent',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center'
                                         }}>
                                             {alvosSelecionados.includes(i.id) && <Check size={14} color="var(--bg-secondary)" />}
@@ -309,7 +309,7 @@ export default function CautelaresPage() {
                     {/* Passo 4: Finalização */}
                     {passo === 4 && (
                         <div className="search-header" style={{ padding: '24px' }}>
-                            <h4 style={{ margin: '0 0 16px 0', color: '#F78166' }}>Passo 4: Observações e Confirmação</h4>
+                            <h4 style={{ margin: '0 0 16px 0', color: 'var(--accent-color)' }}>Passo 4: Observações e Confirmação</h4>
 
                             <div className="form-group">
                                 <label className="form-label">Observações (Opcional)</label>
@@ -328,7 +328,7 @@ export default function CautelaresPage() {
                             <div style={{ marginTop: '24px', padding: '16px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
                                 <h5 style={{ margin: '0 0 12px 0', color: 'var(--text-secondary)', fontSize: '11px', textTransform: 'uppercase' }}>Resumo da Medida</h5>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
-                                    <div>Tipo: <strong style={{ color: '#F78166' }}>
+                                    <div>Tipo: <strong style={{ color: 'var(--accent-color)' }}>
                                         {tipoSelecionado === 'BUSCA_APREENSAO' ? 'Busca e Apreensão' :
                                             tipoSelecionado === 'PRISAO_CAUTELAR' ? 'Prisão Cautelar' :
                                                 tipoSelecionado === 'SIGILO_BANCARIO' ? 'Sigilo Bancário/Fin.' :

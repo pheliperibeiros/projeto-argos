@@ -216,7 +216,7 @@ export default function CasoFormPage() {
                 {/* Coluna Principal: Formulário */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                     <section className="search-header" style={{ padding: '24px' }}>
-                        <h4 style={{ margin: '0 0 20px 0', color: '#F78166' }}>⚙️ Dados da Operação</h4>
+                        <h4 style={{ margin: '0 0 20px 0', color: 'var(--accent-color)' }}>⚙️ Dados da Operação</h4>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                             <div className="form-group">
                                 <label className="form-label">Codinome do Caso*</label>
@@ -317,7 +317,7 @@ export default function CasoFormPage() {
 
                     <section className="search-header" style={{ padding: '24px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <h4 style={{ margin: 0, color: '#F78166' }}>👥 Alvos e Investigados</h4>
+                            <h4 style={{ margin: 0, color: 'var(--accent-color)' }}>👥 Alvos e Investigados</h4>
                             <button
                                 type="button"
                                 className="chip" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
@@ -410,7 +410,7 @@ export default function CasoFormPage() {
 
                     {isEdit && casoExistente?.cautelares && casoExistente.cautelares.length > 0 && (
                         <section className="search-header" style={{ padding: '24px' }}>
-                            <h4 style={{ margin: '0 0 20px 0', color: '#F78166' }}>⚖️ Cautelares e Medidas</h4>
+                            <h4 style={{ margin: '0 0 20px 0', color: 'var(--accent-color)' }}>⚖️ Cautelares e Medidas</h4>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 {casoExistente.cautelares.map((c: any) => (
                                     <div key={c.id} style={{ padding: '16px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', display: 'grid', gridTemplateColumns: 'minmax(120px, 150px) 1fr 100px', gap: '20px', alignItems: 'center' }}>
@@ -454,7 +454,7 @@ export default function CasoFormPage() {
 
                     {isEdit && investigadosVinculados.length > 0 && (
                         <section className="search-header" style={{ padding: '24px' }}>
-                            <h4 style={{ margin: '0 0 20px 0', color: '#F78166' }}>🕸️ Diagrama de Vínculos da Operação</h4>
+                            <h4 style={{ margin: '0 0 20px 0', color: 'var(--accent-color)' }}>🕸️ Diagrama de Vínculos da Operação</h4>
                             <Suspense fallback={<div style={{ height: 400, background: 'var(--bg-secondary)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}>Carregando diagrama...</div>}>
                                 <VisNetworkGraph
                                     highlightNodeId={id}
@@ -512,7 +512,7 @@ export default function CasoFormPage() {
                     onClick={handleSubmit((data) => saveMutation.mutate(data))}
                     disabled={saveMutation.isPending}
                     style={{
-                        backgroundColor: '#F78166', color: 'white', border: 'none',
+                        backgroundColor: 'var(--accent-color)', color: 'white', border: 'none',
                         padding: '10px 32px', borderRadius: '6px', fontWeight: 600,
                         display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
                         opacity: saveMutation.isPending ? 0.7 : 1

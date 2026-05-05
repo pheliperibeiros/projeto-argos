@@ -16,7 +16,7 @@ import { gerarPDF, gerarCSV } from '@/lib/pdfGenerator'
 import { formatDocumento, formatDate } from '@/utils/format'
 import { useThemeStore } from '@/store/themeStore'
 
-const COLORS = ['#F78166', '#58A6FF', '#3FB950', '#F0883E', 'var(--text-secondary)']
+const COLORS = ['var(--accent-color)', '#58A6FF', '#3FB950', '#F0883E', 'var(--text-secondary)']
 
 export default function RelatoriosPage() {
     const { user } = useAuthStore()
@@ -459,7 +459,7 @@ export default function RelatoriosPage() {
                                     {efetividade?.investigados.filter((i: any) => i.faccionado && i.faccionado !== 'Não Faccionado' && i.faccionado !== 'Nenhuma').length ?? '—'}
                                 </div>
                             </div>
-                            <div style={{ backgroundColor: 'var(--bg-primary)', padding: '16px', borderRadius: '8px', borderLeft: '4px solid #F78166' }}>
+                            <div style={{ backgroundColor: 'var(--bg-primary)', padding: '16px', borderRadius: '8px', borderLeft: '4px solid var(--accent-color)' }}>
                                 <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>TOTAL DE CASOS</div>
                                 <div style={{ fontSize: '28px', color: 'var(--text-primary)', fontWeight: 700, marginTop: '4px' }}>
                                     {efetividade?.totalCasos ?? '—'}

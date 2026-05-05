@@ -1,16 +1,24 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { LoginPage, RegisterPage, DashboardPage, BuscaPage, CasosListPage, CasoFormPage, InvestigadoPage, CautelaresPage, RelatoriosPage, ImportacaoPage } from '@/pages'
 import { ProtectedRoute, RoleGuard, AppLayout } from '@/components'
+import { useThemeStore } from '@/store/themeStore'
 
 function App() {
+  const { theme } = useThemeStore()
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
+
   return (
     <BrowserRouter>
       <Toaster position="top-right" toastOptions={{
         style: {
-          background: '#161B22',
-          color: '#E6EDF3',
-          border: '1px solid #30363D'
+          background: 'var(--bg-secondary)',
+          color: 'var(--text-primary)',
+          border: '1px solid var(--border-color)'
         }
       }} />
       <Routes>

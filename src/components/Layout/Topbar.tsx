@@ -22,7 +22,7 @@ export function Topbar() {
     return (
         <header className="topbar">
             <div className="breadcrumb">
-                <span className="breadcrumb-item">Argos</span>
+                <span className="breadcrumb-item font-argos">Argos</span>
                 {pathnames.map((name, index) => {
                     const isLast = index === pathnames.length - 1
                     return (

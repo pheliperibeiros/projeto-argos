@@ -11,21 +11,16 @@ import {
     Settings
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
-import { useThemeStore } from '@/store/themeStore'
 import { Topbar } from './Topbar'
 import { ConfiguracoesModal } from '../ConfiguracoesModal'
 import './Layout.css'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
     const { user, logout } = useAuthStore()
-    const { theme } = useThemeStore()
     const navigate = useNavigate()
     const [isConfigOpen, setIsConfigOpen] = React.useState(false)
 
-    // Sincroniza o atributo do DOM com o estado do tema
-    React.useEffect(() => {
-        document.documentElement.setAttribute('data-theme', theme)
-    }, [theme])
+    // O tema agora é sincronizado no App.tsx
 
     const handleLogout = async () => {
         await logout()
@@ -47,22 +42,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <aside className="sidebar">
                 <div className="sidebar-header">
                     <div className="sidebar-logo">
-                        <svg
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        >
-                            <circle cx="12" cy="12" r="10" />
-                            <line x1="22" y1="12" x2="18" y2="12" />
-                            <line x1="6" y1="12" x2="2" y2="12" />
-                            <line x1="12" y1="6" x2="12" y2="2" />
-                            <line x1="12" y1="22" x2="12" y2="18" />
-                        </svg>
                         <span className="sidebar-logo-text">ARGOS</span>
                     </div>
                     <div className="sidebar-user-info">

@@ -79,8 +79,8 @@ function MapFilterControl({ current, options, onChange }: { current: string, opt
             {current !== 'Todas' && (
                 <div style={{
                     backgroundColor: 'rgba(247, 129, 102, 0.1)',
-                    border: '1px solid #F78166',
-                    color: '#F78166',
+                    border: '1px solid var(--accent-color)',
+                    color: 'var(--accent-color)',
                     padding: '4px 12px',
                     borderRadius: '16px',
                     fontSize: '11px',
@@ -166,11 +166,38 @@ function HeatmapLayer({ points, theme }: { points: [number, number, number?][], 
             ? { 0.4: 'cyan', 0.65: 'lime', 1: 'red' }
             : { 0.4: '#feb24c', 0.65: '#f03b20', 1: '#bd0026' }
 
+        const pointsCount = points.length
+
+        // Auto-scaling: Ajuste dinâmico de intensidade, raio e desfoque baseado na densidade
+        let heatMax = 1.0
+        let heatRadius = 25
+        let heatBlur = 15
+
+        if (pointsCount < 10) {
+            heatMax = 0.3    // Poucos pontos: satura mais facilmente
+            heatRadius = 35  // Raio maior para evidenciar
+            heatBlur = 25
+        } else if (pointsCount < 50) {
+            heatMax = 0.5
+            heatRadius = 30
+            heatBlur = 20
+        } else if (pointsCount < 200) {
+            heatMax = 0.8
+            heatRadius = 25
+            heatBlur = 15
+        } else {
+            // Grandes volumes: evita saturação excessiva controlando a proporção
+            heatMax = Math.min(1.0 + (pointsCount - 200) / 1000, 3.0)
+            heatRadius = 20
+            heatBlur = 15
+        }
+
         // @ts-ignore
         const heat = L.heatLayer(points, {
-            radius: 25,
-            blur: 15,
+            radius: heatRadius,
+            blur: heatBlur,
             maxZoom: 17,
+            max: heatMax,
             gradient
         }).addTo(map)
 

@@ -355,7 +355,7 @@ export default function ImportacaoPage() {
                                                             zIndex: 20,
                                                             borderRight: '1px solid var(--border-color)'
                                                         }}
-                                                        onMouseEnter={e => (e.currentTarget.style.borderRightColor = '#F78166')}
+                                                        onMouseEnter={e => (e.currentTarget.style.borderRightColor = 'var(--accent-color)')}
                                                         onMouseLeave={e => (e.currentTarget.style.borderRightColor = 'var(--border-color)')}
                                                     />
                                                 </th>
@@ -410,7 +410,7 @@ export default function ImportacaoPage() {
                             onClick={iniciarImportacao}
                             disabled={linhas.length === 0}
                             style={{
-                                backgroundColor: '#F78166', color: 'white', border: 'none',
+                                backgroundColor: 'var(--accent-color)', color: 'white', border: 'none',
                                 padding: '10px 32px', borderRadius: '6px', fontWeight: 600,
                                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
                                 opacity: linhas.length === 0 ? 0.5 : 1
@@ -561,7 +561,7 @@ export default function ImportacaoPage() {
                         <button
                             onClick={reiniciar}
                             style={{
-                                backgroundColor: '#F78166', color: 'white', border: 'none',
+                                backgroundColor: 'var(--accent-color)', color: 'white', border: 'none',
                                 padding: '10px 24px', borderRadius: '6px', fontWeight: 600,
                                 cursor: 'pointer'
                             }}

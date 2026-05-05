@@ -155,7 +155,7 @@ export default function CasosListPage() {
                             className="btn btn-primary"
                             onClick={() => navigate('/casos/novo')}
                             style={{
-                                backgroundColor: '#F78166',
+                                backgroundColor: 'var(--accent-color)',
                                 color: 'white',
                                 border: 'none',
                                 padding: '8px 16px',

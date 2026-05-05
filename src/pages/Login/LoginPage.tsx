@@ -44,23 +44,7 @@ export default function LoginPage() {
             <div className="login-card">
                 <header className="login-header">
                     <div className="login-logo-container">
-                        {/* Símbolo de mira SVG inline em #F78166 */}
-                        <svg
-                            width="40"
-                            height="40"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="#F78166"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        >
-                            <circle cx="12" cy="12" r="10" />
-                            <line x1="22" y1="12" x2="18" y2="12" />
-                            <line x1="6" y1="12" x2="2" y2="12" />
-                            <line x1="12" y1="6" x2="12" y2="2" />
-                            <line x1="12" y1="22" x2="12" y2="18" />
-                        </svg>
+                        <img src="/logo_login.png" alt="Argos Logo" className="login-logo-img" />
                         <h1 className="login-title">ARGOS</h1>
                     </div>
                     <p className="login-subtitle">Hub Gerencial Estratégico · GAECO</p>

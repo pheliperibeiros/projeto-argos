@@ -360,7 +360,7 @@ export function InvestigadoEditModal({ open, onClose, data, onSalvo }: Props) {
                         onClick={handleSave}
                         disabled={loading}
                         style={{
-                            backgroundColor: '#F78166', color: 'white', border: 'none',
+                            backgroundColor: 'var(--accent-color)', color: 'white', border: 'none',
                             padding: '12px 32px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer',
                             opacity: loading ? 0.7 : 1
                         }}

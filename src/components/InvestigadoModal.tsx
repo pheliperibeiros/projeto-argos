@@ -301,8 +301,8 @@ export function InvestigadoModal({ open, onClose, onSalvo }: Props) {
                         onClick={() => setTipo('PF')}
                         style={{
                             padding: '12px 24px', background: 'none', border: 'none',
-                            color: tipo === 'PF' ? '#F78166' : 'var(--text-secondary)',
-                            borderBottom: tipo === 'PF' ? '2px solid #F78166' : 'none',
+                            color: tipo === 'PF' ? 'var(--accent-color)' : 'var(--text-secondary)',
+                            borderBottom: tipo === 'PF' ? '2px solid var(--accent-color)' : 'none',
                             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'
                         }}
                     >
@@ -312,8 +312,8 @@ export function InvestigadoModal({ open, onClose, onSalvo }: Props) {
                         onClick={() => setTipo('PJ')}
                         style={{
                             padding: '12px 24px', background: 'none', border: 'none',
-                            color: tipo === 'PJ' ? '#F78166' : 'var(--text-secondary)',
-                            borderBottom: tipo === 'PJ' ? '2px solid #F78166' : 'none',
+                            color: tipo === 'PJ' ? 'var(--accent-color)' : 'var(--text-secondary)',
+                            borderBottom: tipo === 'PJ' ? '2px solid var(--accent-color)' : 'none',
                             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'
                         }}
                     >
@@ -384,7 +384,7 @@ export function InvestigadoModal({ open, onClose, onSalvo }: Props) {
                                         disabled={consultando}
                                         style={{
                                             display: 'flex', alignItems: 'center', gap: '6px',
-                                            backgroundColor: consultando ? 'rgba(255,255,255,0.05)' : '#F78166',
+                                            backgroundColor: consultando ? 'rgba(255,255,255,0.05)' : 'var(--accent-color)',
                                             color: consultando ? 'var(--text-secondary)' : 'white',
                                             border: consultando ? '1px solid var(--border-color)' : 'none',
                                             height: '32px', cursor: consultando ? 'not-allowed' : 'pointer',
@@ -508,7 +508,7 @@ export function InvestigadoModal({ open, onClose, onSalvo }: Props) {
                         onClick={handleSave}
                         disabled={loading}
                         style={{
-                            backgroundColor: '#F78166', color: 'white', border: 'none',
+                            backgroundColor: 'var(--accent-color)', color: 'white', border: 'none',
                             padding: '10px 24px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer'
                         }}
                     >
@@ -552,7 +552,7 @@ export function InvestigadoModal({ open, onClose, onSalvo }: Props) {
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
                             <button onClick={() => setMapOpen(false)} style={{
-                                backgroundColor: '#F78166', color: 'white', border: 'none',
+                                backgroundColor: 'var(--accent-color)', color: 'white', border: 'none',
                                 padding: '8px 16px', borderRadius: '4px', cursor: 'pointer'
                             }}>
                                 Confirmar localização
