@@ -76,7 +76,7 @@ export async function buscarStats() {
     const rankingTags = Object.entries(tagsMap)
         .map(([materia, quantidade]) => ({ materia, quantidade }))
         .sort((a, b) => b.quantidade - a.quantidade)
-        .slice(0, 5) // Top 5
+        .slice(0, 10) // Top 10
 
     // Agrupar investigados por faccionado
     const faccoesMap = (investigados || []).reduce((acc: any, curr: any) => {
@@ -132,6 +132,9 @@ export async function buscarStats() {
 
     return {
         casosAtivos: casosAtivos || 0,
+        nfAtivos: nfAtual,
+        picAtivos: picAtual,
+        apAtivos: apAtual,
         buscasAno: buscasAno || 0,
         cumpridasAno: cumpridasAno || 0,
         faccionadosCadastrados: faccionadosCadastrados || 0,

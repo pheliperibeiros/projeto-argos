@@ -28,7 +28,7 @@ export async function buscarPorId(id: string) {
         .select(`
             *,
             caso_investigado (
-                investigados ( id, nome, cpf, cnpj, tipo, papel_organizacao, faccionado )
+                investigados ( id, nome, cpf, cnpj, tipo, papel_organizacao, faccionado, nome_pai, nome_mae )
             ),
             cautelares (
                 *, investigados ( nome, cpf )

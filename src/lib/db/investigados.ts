@@ -71,7 +71,7 @@ export async function buscarPorId(id: string) {
             .from('caso_investigado')
             .select(`
                 caso_id,
-                investigados ( id, nome, tipo )
+                investigados ( id, nome, tipo, nome_pai, nome_mae, cpf, cnpj )
             `)
             .in('caso_id', casoIds)
             .neq('investigado_id', id)
@@ -85,7 +85,9 @@ export async function buscarPorId(id: string) {
         label: inv.nome,
         sublabel: inv.cpf || inv.cnpj ? (inv.tipo === 'PESSOA_FISICA' ? `CPF: ${inv.cpf}` : `CNPJ: ${inv.cnpj}`) : undefined,
         group: 'investigado_principal',
-        tipo: inv.tipo
+        tipo: inv.tipo,
+        pai: inv.nome_pai,
+        mae: inv.nome_mae
     })
 
     const edges = []
@@ -103,7 +105,9 @@ export async function buscarPorId(id: string) {
                 label: invOutro.nome,
                 sublabel: invOutro.cpf || invOutro.cnpj ? (invOutro.tipo === 'PESSOA_FISICA' ? `CPF: ${invOutro.cpf}` : `CNPJ: ${invOutro.cnpj}`) : undefined,
                 group: 'investigado',
-                tipo: invOutro.tipo
+                tipo: invOutro.tipo,
+                pai: invOutro.nome_pai,
+                mae: invOutro.nome_mae
             })
             edges.push({ from: outro.caso_id, to: invOutro.id })
         }

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { DataSet } from 'vis-data'
 import { useNavigate } from 'react-router-dom'
-import { Layout, Maximize, Activity } from 'lucide-react'
+import { Layout, Maximize, Activity, Users, GitGraph, Circle } from 'lucide-react'
 
 export interface GraphNode {
     id: string
@@ -9,6 +9,8 @@ export interface GraphNode {
     sublabel?: string
     tipo?: string
     group?: string
+    pai?: string
+    mae?: string
 }
 
 export interface GraphEdge {
@@ -79,28 +81,28 @@ const ICONS: Record<string, string> = {
 ========================================= */
 
 const PALETTE = {
-    pessoa: { accent: '#F59E42', dim: 'rgba(245,158,66,.14)', glow: 'rgba(245,158,66,.22)' },
-    empresa: { accent: '#34D399', dim: 'rgba(52,211,153,.14)', glow: 'rgba(52,211,153,.22)' },
-    veiculo: { accent: '#A78BFA', dim: 'rgba(167,139,250,.14)', glow: 'rgba(167,139,250,.22)' },
-    telefone: { accent: '#F87171', dim: 'rgba(248,113,113,.14)', glow: 'rgba(248,113,113,.22)' },
-    conta: { accent: '#60A5FA', dim: 'rgba(96,165,250,.14)', glow: 'rgba(96,165,250,.22)' },
-    endereco: { accent: '#C084FC', dim: 'rgba(192,132,252,.14)', glow: 'rgba(192,132,252,.22)' },
-    caso: { accent: '#FCD34D', dim: 'rgba(252,211,77,.14)', glow: 'rgba(252,211,77,.22)' },
-    default: { accent: '#94A3B8', dim: 'rgba(148,163,184,.10)', glow: 'rgba(148,163,184,.15)' },
+    pessoa: { accent: '#F97316', dim: 'rgba(249,115,22,.18)', glow: 'rgba(249,115,22,.28)' },
+    empresa: { accent: '#10B981', dim: 'rgba(16,185,129,.18)', glow: 'rgba(16,185,129,.28)' },
+    veiculo: { accent: '#8B5CF6', dim: 'rgba(139,92,246,.18)', glow: 'rgba(139,92,246,.28)' },
+    telefone: { accent: '#EF4444', dim: 'rgba(239,68,68,.18)', glow: 'rgba(239,68,68,.28)' },
+    conta: { accent: '#3B82F6', dim: 'rgba(59,130,246,.18)', glow: 'rgba(59,130,246,.28)' },
+    endereco: { accent: '#D946EF', dim: 'rgba(217,70,239,.18)', glow: 'rgba(217,70,239,.28)' },
+    caso: { accent: '#EAB308', dim: 'rgba(234,179,8,.18)', glow: 'rgba(234,179,8,.28)' },
+    default: { accent: '#64748B', dim: 'rgba(100,116,139,.10)', glow: 'rgba(100,116,139,.15)' },
 }
 
 /* =========================================
    PALETA DE ARESTAS — tons coesos
 ========================================= */
 
-const EDGE_PALETTE = {
-    ligacao: { color: '#F59E42', opacity: 0.80, dash: false },
-    parentesco: { color: '#F87171', opacity: 0.80, dash: false },
-    transferencia: { color: '#34D399', opacity: 0.80, dash: false },
-    sociedade: { color: '#60A5FA', opacity: 0.80, dash: false },
-    presenca: { color: '#C084FC', opacity: 0.75, dash: true },
-    padrao: { color: '#64748B', opacity: 0.28, dash: false },
-}
+const getEdgePalette = (isDark: boolean) => ({
+    ligacao: { color: '#F59E42', opacity: 0.85, dash: false },
+    parentesco: { color: '#F87171', opacity: 0.85, dash: false },
+    transferencia: { color: '#34D399', opacity: 0.85, dash: false },
+    sociedade: { color: '#60A5FA', opacity: 0.85, dash: false },
+    presenca: { color: '#C084FC', opacity: 0.80, dash: true },
+    padrao: { color: isDark ? '#64748B' : '#475569', opacity: isDark ? 0.35 : 0.50, dash: false },
+})
 
 /* =========================================
    SVG REFINADO — glass + halo + gradiente
@@ -126,10 +128,10 @@ function createSvgIcon(
       <stop offset="100%" stop-color="${pal.accent}" stop-opacity="0"/>
     </radialGradient>
 
-    <!-- Preenchimento do disco interno (glass) -->
+    <!-- Preenchimento do disco interno (glass) - com tint da cor de acento para saturação -->
     <radialGradient id="disk_${uid}" cx="38%" cy="32%" r="65%">
-      <stop offset="0%"   stop-color="${isDark ? '#1E293B' : '#F8FAFF'}" stop-opacity="1"/>
-      <stop offset="100%" stop-color="${isDark ? '#0F172A' : '#EEF2FF'}" stop-opacity="1"/>
+      <stop offset="0%"   stop-color="${isDark ? '#1E293B' : '#FFFFFF'}" stop-opacity="1"/>
+      <stop offset="100%" stop-color="${isDark ? '#0F172A' : `${pal.accent}15`}" stop-opacity="1"/>
     </radialGradient>
 
     <!-- Reflexo de luz superior -->
@@ -138,17 +140,19 @@ function createSvgIcon(
       <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
     </radialGradient>
 
-    <!-- Borda gradiente do anel -->
+    <!-- Borda gradiente do anel - mais intensa -->
     <linearGradient id="ring_${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%"   stop-color="${pal.accent}" stop-opacity="${isHighlighted ? '1' : '.85'}"/>
-      <stop offset="50%"  stop-color="${pal.accent}" stop-opacity="${isHighlighted ? '.70' : '.45'}"/>
-      <stop offset="100%" stop-color="${pal.accent}" stop-opacity="${isHighlighted ? '1' : '.85'}"/>
+      <stop offset="0%"   stop-color="${pal.accent}" stop-opacity="1"/>
+      <stop offset="50%"  stop-color="${pal.accent}" stop-opacity="${isHighlighted ? '.90' : '.75'}"/>
+      <stop offset="100%" stop-color="${pal.accent}" stop-opacity="1"/>
     </linearGradient>
 
-    <!-- Sombra suave do disco -->
-    <filter id="shadow_${uid}" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="3" stdDeviation="${isHighlighted ? '6' : '3.5'}"
-        flood-color="${pal.accent}" flood-opacity="${isHighlighted ? '.35' : '.20'}"/>
+    <!-- Sombra forte para destaque -->
+    <filter id="shadow_${uid}" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="${isHighlighted ? '8' : '5'}"
+        flood-color="#000000" flood-opacity="${isDark ? '.65' : '.25'}"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="2.5"
+        flood-color="${pal.accent}" flood-opacity=".4"/>
     </filter>
 
   </defs>
@@ -181,21 +185,22 @@ function createSvgIcon(
   <circle cx="50" cy="50" r="${isHighlighted ? 35 : 32}"
     fill="url(#disk_${uid})"
     stroke="url(#ring_${uid})"
-    stroke-width="${ringW}"
+    stroke-width="${isDark ? ringW : ringW + 0.4}"
     filter="url(#shadow_${uid})"/>
 
   <!-- Reflexo de vidro superior -->
   <circle cx="50" cy="50" r="${isHighlighted ? 35 : 32}"
     fill="url(#shine_${uid})"/>
 
-  <!-- Ícone centralizado -->
+  <!-- Ícone centralizado - opacidade máxima para destaque -->
   <g transform="translate(${isHighlighted ? 25 : 26}, ${isHighlighted ? 25 : 26}) scale(${isHighlighted ? 2.08 : 2.0})"
      stroke="${pal.accent}"
      fill="none"
+     stroke-width="2.1"
      stroke-linecap="round"
      stroke-linejoin="round"
      color="${pal.accent}"
-     opacity="${isDark ? '.92' : '.82'}">
+     opacity="1">
     ${icon}
   </g>
 
@@ -208,18 +213,27 @@ function createSvgIcon(
    OPTIONS VIS-NETWORK
 ========================================= */
 
-const getOptions = (layout: 'force' | 'hierarchical') => ({
+const getOptions = (layout: 'force' | 'hierarchical' | 'hierarchical-lr' | 'circular') => ({
     physics: {
-        enabled: layout === 'force',
-        forceAtlas2Based: {
-            gravitationalConstant: -160,
-            centralGravity: 0.01,
-            springLength: 160,
-            springConstant: 0.07,
-            damping: 0.9
-        },
-        solver: 'forceAtlas2Based',
-        stabilization: { iterations: 180 }
+        enabled: layout === 'force' || layout === 'circular',
+        forceAtlas2Based: layout === 'force' ? {
+            gravitationalConstant: -180,
+            centralGravity: 0.015,
+            springLength: 180,
+            springConstant: 0.08,
+            damping: 0.9,
+            avoidOverlap: 1.0
+        } : undefined,
+        barnesHut: layout === 'circular' ? {
+            gravitationalConstant: -2000,
+            centralGravity: 0.3,
+            springLength: 200,
+            springConstant: 0.04,
+            damping: 0.09,
+            avoidOverlap: 1
+        } : undefined,
+        solver: layout === 'circular' ? 'barnesHut' : 'forceAtlas2Based',
+        stabilization: { iterations: layout === 'circular' ? 250 : 180 }
     },
 
     interaction: {
@@ -232,16 +246,15 @@ const getOptions = (layout: 'force' | 'hierarchical') => ({
 
     layout: {
         improvedLayout: true,
-        hierarchical:
-            layout === 'hierarchical'
-                ? {
-                    enabled: true,
-                    direction: 'UD',
-                    sortMethod: 'directed',
-                    nodeSpacing: 160,
-                    levelSeparation: 160
-                }
-                : { enabled: false }
+        hierarchical: (layout === 'hierarchical' || layout === 'hierarchical-lr')
+            ? {
+                enabled: true,
+                direction: layout === 'hierarchical' ? 'UD' : 'LR',
+                sortMethod: 'directed',
+                nodeSpacing: 180,
+                levelSeparation: 200
+            }
+            : { enabled: false }
     },
     nodes: {
         chosen: false,
@@ -270,7 +283,7 @@ function resolveNodeType(n: GraphNode): keyof typeof PALETTE {
    RESOLVE TIPO DA ARESTA
 ========================================= */
 
-function resolveEdgeType(e: GraphEdge): keyof typeof EDGE_PALETTE {
+function resolveEdgeType(e: GraphEdge): keyof ReturnType<typeof getEdgePalette> {
     const t = (e.tipo || '').toLowerCase()
     if (t.includes('ligacao')) return 'ligacao'
     if (t.includes('parentesco')) return 'parentesco'
@@ -289,7 +302,8 @@ export default function VisNetworkGraph({ nodes, edges, highlightNodeId }: Props
     const ref = useRef<HTMLDivElement>(null)
     const netRef = useRef<any>(null)
 
-    const [layout, setLayout] = useState<'force' | 'hierarchical'>('force')
+    const [layout, setLayout] = useState<'force' | 'hierarchical' | 'hierarchical-lr' | 'circular'>('force')
+    const [showParents, setShowParents] = useState(false)
     const [isDark, setIsDark] = useState(
         document.documentElement.getAttribute('data-theme') !== 'light'
     )
@@ -310,31 +324,66 @@ export default function VisNetworkGraph({ nodes, edges, highlightNodeId }: Props
             if (!NetworkClass || !ref.current) return
 
             /* ---------- NODOS ---------- */
+            const finalNodes = [...nodes]
+            const finalEdges = [...edges]
+
+            if (showParents) {
+                nodes.forEach(n => {
+                    const typeKey = resolveNodeType(n)
+                    const isPerson = typeKey === 'pessoa';
+                    if (isPerson && n.pai) {
+                        const parentId = `pai_${n.id}`
+                        finalNodes.push({
+                            id: parentId,
+                            label: n.pai,
+                            sublabel: 'Genitor (Pai)',
+                            tipo: 'pessoa',
+                            group: 'familia'
+                        })
+                        // Invertida a direção: do Genitor PARA o Alvo
+                        finalEdges.push({ from: parentId, to: n.id, label: 'Pai', tipo: 'parentesco', direcional: true })
+                    }
+                    if (isPerson && n.mae) {
+                        const parentId = `mae_${n.id}`
+                        finalNodes.push({
+                            id: parentId,
+                            label: n.mae,
+                            sublabel: 'Genitora (Mãe)',
+                            tipo: 'pessoa',
+                            group: 'familia'
+                        })
+                        // Invertida a direção: da Genitora PARA o Alvo
+                        finalEdges.push({ from: parentId, to: n.id, label: 'Mãe', tipo: 'parentesco', direcional: true })
+                    }
+                })
+            }
+
             const ds = new DataSet(
-                nodes.map((n) => {
+                finalNodes.map((n) => {
                     const typeKey = resolveNodeType(n)
                     const isHighlighted = n.id === highlightNodeId
+                    const isFamily = n.group === 'familia'
                     const pal = PALETTE[typeKey] ?? PALETTE.default
 
                     return {
                         id: n.id,
                         label: `<b>${n.label}</b>${n.sublabel ? `\n${n.sublabel}` : ''}`,
                         shape: 'image',
-                        image: createSvgIcon(typeKey, isDark, isHighlighted),
-                        size: isHighlighted ? 46 : 30,
+                        image: createSvgIcon(typeKey, isDark, isHighlighted || isFamily),
+                        size: isHighlighted ? 46 : (isFamily ? 24 : 30),
                         chosen: false,
                         borderWidth: 0,
                         borderWidthSelected: 0,
 
                         font: {
-                            color: isDark ? '#CBD5E1' : '#374151',
+                            color: isDark ? '#E2E8F0' : '#1E293B', // Texto mais escuro no modo claro
                             size: 11,
                             face: '"DM Sans", "Geist", ui-sans-serif, sans-serif',
                             multi: 'html',
-                            vadjust: 4,
+                            vadjust: 6,
                             bold: {
-                                color: isDark ? '#F1F5F9' : '#111827',
-                                size: 12,
+                                color: isDark ? '#F8FAFC' : '#000000', // Preto total para negrito no modo claro
+                                size: 12.5,
                                 face: '"DM Sans", "Geist", ui-sans-serif, sans-serif',
                             }
                         },
@@ -347,16 +396,18 @@ export default function VisNetworkGraph({ nodes, edges, highlightNodeId }: Props
                             y: isHighlighted ? 6 : 4,
                         },
 
-                        _tipo: typeKey
+                        _tipo: typeKey,
+                        group: n.group
                     }
                 })
             )
 
             /* ---------- ARESTAS ---------- */
+            const epMap = getEdgePalette(isDark)
             const es = new DataSet(
-                edges.map((e, i) => {
+                finalEdges.map((e, i) => {
                     const eType = resolveEdgeType(e)
-                    const ep = EDGE_PALETTE[eType]
+                    const ep = epMap[eType]
 
                     /* Largura base + intensidade mapeada suavemente */
                     const baseWidth = eType === 'padrao' ? 1 : 1.6
@@ -418,6 +469,14 @@ export default function VisNetworkGraph({ nodes, edges, highlightNodeId }: Props
                 if (params.nodes?.length) {
                     const nodeId = params.nodes[0]
                     const node = ds.get(nodeId) as any
+
+                    if (node?.group === 'familia') {
+                        // Extrai ID do alvo a partir de pai_UUID ou mae_UUID
+                        const targetId = nodeId.toString().replace(/^(pai_|mae_)/, '')
+                        navigate(`/investigado/${targetId}`)
+                        return
+                    }
+
                     if ((node?._tipo === 'pessoa' || node?._tipo === 'empresa') && nodeId !== highlightNodeId) {
                         navigate(`/investigado/${nodeId}`)
                     }
@@ -428,7 +487,8 @@ export default function VisNetworkGraph({ nodes, edges, highlightNodeId }: Props
             })
 
             net.once('stabilizationIterationsDone', () => {
-                if (layout === 'force') net.setOptions({ physics: { enabled: false } })
+                // Física habilitada permanentemente conforme pedido
+                if (layout === 'force' || layout === 'circular') net.setOptions({ physics: { enabled: true } })
             })
 
             netRef.current = net
@@ -438,7 +498,7 @@ export default function VisNetworkGraph({ nodes, edges, highlightNodeId }: Props
             netRef.current?.destroy()
             netRef.current = null
         }
-    }, [nodes, edges, layout, isDark, highlightNodeId])
+    }, [nodes, edges, layout, isDark, highlightNodeId, showParents])
 
     /* ---------- TOOLBAR ---------- */
     const toolBtn = (active: boolean) => ({
@@ -475,8 +535,11 @@ export default function VisNetworkGraph({ nodes, edges, highlightNodeId }: Props
                 boxShadow: '0 4px 16px rgba(0,0,0,.18)',
                 backdropFilter: 'blur(8px)',
             }}>
-                <button onClick={() => setLayout('force')} style={toolBtn(layout === 'force')} title="Layout de força">      <Activity size={15} /> </button>
-                <button onClick={() => setLayout('hierarchical')} style={toolBtn(layout === 'hierarchical')} title="Layout hierárquico">    <Layout size={15} /> </button>
+                <button onClick={() => setLayout('force')} style={toolBtn(layout === 'force')} title="Layout de Força">      <Activity size={15} /> </button>
+                <button onClick={() => setLayout('hierarchical')} style={toolBtn(layout === 'hierarchical')} title="Hierárquico Vertical">    <Layout size={15} /> </button>
+                <button onClick={() => setLayout('hierarchical-lr')} style={toolBtn(layout === 'hierarchical-lr')} title="Hierárquico Horizontal"> <GitGraph size={15} /> </button>
+                <button onClick={() => setLayout('circular')} style={toolBtn(layout === 'circular')} title="Layout Circular"> <Circle size={15} /> </button>
+                <button onClick={() => setShowParents(!showParents)} style={toolBtn(showParents)} title="Exibir Genitores"> <Users size={15} /> </button>
                 <button onClick={() => netRef.current?.fit({ animation: { duration: 400, easingFunction: 'easeInOutQuad' } })}
                     style={toolBtn(false)} title="Encaixar tudo"><Maximize size={15} /></button>
             </div>
@@ -486,10 +549,11 @@ export default function VisNetworkGraph({ nodes, edges, highlightNodeId }: Props
                 ref={ref}
                 style={{
                     height: '100%',
+                    backgroundColor: isDark ? '#0a0f1a' : '#f4f7fb', // Fundo que aumenta o contraste
                     backgroundImage: isDark
-                        ? 'radial-gradient(circle, rgba(255,255,255,.04) 1px, transparent 1px)'
-                        : 'radial-gradient(circle, rgba(0,0,0,.045) 1px, transparent 1px)',
-                    backgroundSize: '28px 28px',
+                        ? 'radial-gradient(circle, rgba(255,255,255,.05) 1px, transparent 1px)'
+                        : 'radial-gradient(circle, rgba(0,0,0,.06) 1px, transparent 1px)',
+                    backgroundSize: '32px 32px',
                 }}
             />
         </div>

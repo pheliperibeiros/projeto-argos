@@ -464,7 +464,9 @@ export default function CasoFormPage() {
                                             id: v.id,
                                             label: v.nome,
                                             sublabel: formatDocumento(v.cpf || v.cnpj || ''),
-                                            tipo: v.tipo
+                                            tipo: v.tipo,
+                                            pai: v.nome_pai || v.pai,
+                                            mae: v.nome_mae || v.mae
                                         }))
                                     ]}
                                     edges={investigadosVinculados.map(v => ({

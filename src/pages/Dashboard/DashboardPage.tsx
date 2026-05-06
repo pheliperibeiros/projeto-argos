@@ -156,6 +156,72 @@ function MapSearchControl() {
     )
 }
 
+function WordCloud({ tags }: { tags: { materia: string, quantidade: number }[] }) {
+    if (!tags || tags.length === 0) {
+        return <EmptyChartState title="Sem tags cadastradas nos casos" />
+    }
+
+    const maxQty = Math.max(...tags.map(t => t.quantidade));
+    const minQty = Math.min(...tags.map(t => t.quantidade));
+    const colors = [
+        'var(--text-primary)',
+        'var(--accent-color)',
+        'var(--info-color)',
+        'var(--text-secondary)',
+        'var(--accent-secondary)'
+    ];
+    const opacities = [1, 0.9, 0.8, 0.7];
+    const shuffled = [...tags].sort((a, b) => a.materia.localeCompare(b.materia)); // Sorting alfabético para estabilidade
+
+    return (
+        <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px 24px',
+            height: '220px',
+            padding: '20px',
+            overflow: 'hidden'
+        }}>
+            {shuffled.map((tag, i) => {
+                const ratio = maxQty === minQty ? 0.5 : (tag.quantidade - minQty) / (maxQty - minQty);
+                const fontSize = 12 + (ratio * 20); // 12 a 32 px
+                const color = colors[i % colors.length];
+                const opacity = opacities[i % opacities.length];
+
+                return (
+                    <span
+                        key={tag.materia}
+                        title={`${tag.materia}: ${tag.quantidade}`}
+                        style={{
+                            fontSize: `${fontSize}px`,
+                            color: color,
+                            opacity: opacity,
+                            fontWeight: 600,
+                            lineHeight: 1,
+                            transition: 'transform 0.2s, filter 0.2s',
+                            cursor: 'default',
+                            whiteSpace: 'nowrap',
+                            display: 'inline-block'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'scale(1.15)';
+                            e.currentTarget.style.filter = 'brightness(1.2)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'scale(1)';
+                            e.currentTarget.style.filter = 'brightness(1)';
+                        }}
+                    >
+                        {tag.materia}
+                    </span>
+                )
+            })}
+        </div>
+    )
+}
+
 function HeatmapLayer({ points, theme }: { points: [number, number, number?][], theme: string }) {
     const map = useMap()
 
@@ -234,7 +300,9 @@ export default function DashboardPage() {
     }
 
     const stats = data || {
-        casosAtivos: 0,
+        nfAtivos: 0,
+        picAtivos: 0,
+        apAtivos: 0,
         buscasAno: 0,
         cumpridasAno: 0,
         faccionadosCadastrados: 0,
@@ -271,9 +339,11 @@ export default function DashboardPage() {
                     ))
                 ) : (
                     <>
-                        <StatCard label="Casos Ativos" value={stats.casosAtivos} icon={Activity} />
-                        <StatCard label="Buscas Ap. (Ano Corrente)" value={stats.buscasAno} icon={Search} />
-                        <StatCard label="Cautelares Cumpridas (Ano)" value={stats.cumpridasAno} icon={Gavel} />
+                        <StatCard label="Notícias de Fato" value={stats.nfAtivos} icon={Activity} />
+                        <StatCard label="Procedimentos Inestigatórios" value={stats.picAtivos} icon={Activity} />
+                        <StatCard label="Ações Penais" value={stats.apAtivos} icon={Activity} />
+                        <StatCard label={`Buscas e Apreensões (${new Date().getFullYear()})`} value={stats.buscasAno} icon={Search} />
+                        <StatCard label={`Cautelares Cumpridas (${new Date().getFullYear()})`} value={stats.cumpridasAno} icon={Gavel} />
                         <StatCard label="Faccionados Cadastrados" value={stats.faccionadosCadastrados} icon={Users} />
                     </>
                 )}
@@ -283,7 +353,7 @@ export default function DashboardPage() {
             <div className="dashboard-row-2">
                 <div className="chart-container-large">
                     <div className="chart-header">
-                        <h3 className="chart-title">Histórico de Casos (Em Trâmite)</h3>
+                        <h3 className="chart-title">Histórico da Incidência</h3>
                     </div>
                     {isLoading ? (
                         <div className="skeleton" style={{ height: '220px' }}></div>
@@ -317,35 +387,14 @@ export default function DashboardPage() {
 
                 <div className="chart-container-small">
                     <div className="chart-header">
-                        <h3 className="chart-title">Ranking: Princ. Matérias Investigadas</h3>
+                        <h3 className="chart-title">Principais Matérias Investigadas</h3>
                     </div>
                     {isLoading ? (
                         <div className="skeleton" style={{ height: '220px' }}></div>
                     ) : stats.rankingTags.length === 0 ? (
                         <EmptyChartState title="Sem tags cadastradas nos casos" />
                     ) : (
-                        <ResponsiveContainer width="100%" height={220} minWidth={0}>
-                            <BarChart data={stats.rankingTags} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" horizontal={false} />
-                                <XAxis type="number" hide />
-                                <YAxis
-                                    type="category"
-                                    dataKey="materia"
-                                    stroke="var(--text-secondary)"
-                                    fontSize={11}
-                                    tickLine={false}
-                                    axisLine={false}
-                                    width={100}
-                                    tickFormatter={(val) => val.length > 15 ? val.slice(0, 15) + '...' : val}
-                                />
-                                <Tooltip
-                                    contentStyle={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                                    itemStyle={{ fontSize: '12px' }}
-                                    cursor={{ fill: 'var(--border-color)', opacity: 0.2 }}
-                                />
-                                <Bar dataKey="quantidade" name="Ocorrências" fill="#8C8CF2" radius={[0, 4, 4, 0]} barSize={20} />
-                            </BarChart>
-                        </ResponsiveContainer>
+                        <WordCloud tags={stats.rankingTags} />
                     )}
                 </div>
             </div>
