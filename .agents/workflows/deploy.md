@@ -45,7 +45,7 @@ npm run build
 6. Deploy via Netlify MCP:
    - Usar a ferramenta `netlify-deploy-services-updater` com `deploy-site`
    - deployDirectory: `d:\Projeto Argos 1\dist`
-   - siteId: `8d0f8ba0-d4f1-41ce-9710-ae3ceaba79de`
+   - siteId: `736fb0b6-4956-4768-96c7-dacfe6c722b8`
 
 7. Verificar o deploy:
    - Usar a ferramenta `netlify-deploy-services-reader` com `get-deploy` para verificar o status
