@@ -306,12 +306,15 @@ async function postToSheets<T>(action: string, params: Record<string, any> = {})
         throw new Error('VITE_GOOGLE_SHEETS_WEBAPP_URL não está configurada no .env.local')
     }
 
+    const apiKey = env.VITE_GOOGLE_SHEETS_API_KEY || ''
+
     const response = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'text/plain;charset=utf-8' // evita preflight CORS complexo com redirecionamentos no GAS
         },
         body: JSON.stringify({
+            apiKey,
             action,
             ...params
         })

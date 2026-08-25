@@ -34,6 +34,7 @@ const envSchema = z.object({
 
     // --- Google Sheets ---
     VITE_GOOGLE_SHEETS_WEBAPP_URL: z.string().url().or(z.literal('')).optional(),
+    VITE_GOOGLE_SHEETS_API_KEY: z.string().optional(),
 });
 
 const _env = import.meta.env;
