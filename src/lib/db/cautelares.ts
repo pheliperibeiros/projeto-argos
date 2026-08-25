@@ -1,13 +1,19 @@
 import { supabase } from '@/lib/supabase'
+import { isSheetsMode } from '@/lib/env'
+import { sheetsClient } from '@/lib/googleSheetsClient'
 
 export async function listar(filtros?: { tipo?: string; casoId?: string; ativo?: boolean; status?: string }) {
+    if (isSheetsMode) {
+        return sheetsClient.cautelares.listar(filtros)
+    }
+
     let query = supabase
         .from('cautelares')
         .select('*, casos(codinome, e_proc), investigados(nome, cpf, cnpj)')
 
     if (filtros) {
         if (filtros.tipo && filtros.tipo !== 'Todos') {
-            query = query.eq('tipo', filtros.tipo)
+            query = query.eq('tipo', filtros.tipo as any)
         }
         if (filtros.casoId) {
             query = query.eq('caso_id', filtros.casoId)
@@ -16,7 +22,7 @@ export async function listar(filtros?: { tipo?: string; casoId?: string; ativo?:
             query = query.eq('ativo', filtros.ativo)
         }
         if (filtros.status && filtros.status !== 'Todos') {
-            query = query.eq('status', filtros.status)
+            query = query.eq('status', filtros.status as any)
         }
     }
 
@@ -33,12 +39,16 @@ export async function listar(filtros?: { tipo?: string; casoId?: string; ativo?:
 }
 
 export async function criarLote(tipo: string, casoId: string, investigadoIds: string[], observacao?: string) {
+    if (isSheetsMode) {
+        return sheetsClient.cautelares.criarLote(tipo, casoId, investigadoIds, observacao)
+    }
+
     const rows = investigadoIds.map(investigado_id => ({
-        tipo,
+        tipo: tipo as any,
         caso_id: casoId,
         investigado_id,
         observacao: observacao ?? null,
-        status: 'Peticionado',
+        status: 'Peticionado' as any,
         ativo: true
     }))
 
@@ -47,15 +57,24 @@ export async function criarLote(tipo: string, casoId: string, investigadoIds: st
 }
 
 export async function atualizarStatus(id: string, status: string) {
+    if (isSheetsMode) {
+        return sheetsClient.cautelares.atualizarStatus(id, status)
+    }
+
     const { error } = await supabase
         .from('cautelares')
-        .update({ status })
+        .update({ status: status as any })
         .eq('id', id)
 
     if (error) throw new Error(error.message)
 }
 
+
 export async function atualizarObservacao(id: string, observacao: string) {
+    if (isSheetsMode) {
+        return sheetsClient.cautelares.atualizarObservacao(id, observacao)
+    }
+
     const { error } = await supabase
         .from('cautelares')
         .update({ observacao })
@@ -70,3 +89,4 @@ export const dbCautelares = {
     atualizarStatus,
     atualizarObservacao
 }
+

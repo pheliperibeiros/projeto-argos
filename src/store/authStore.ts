@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { supabase } from '@/lib/supabase'
 import type { UserProfile } from '@/types/auth'
+import { isSheetsMode } from '@/lib/env'
 
 interface AuthState {
     user: UserProfile | null
@@ -28,6 +29,21 @@ export const useAuthStore = create<AuthState>((set) => ({
     isLoading: true,
 
     init: async () => {
+        if (isSheetsMode) {
+            try {
+                const saved = localStorage.getItem('argos_session')
+                if (saved) {
+                    const user = JSON.parse(saved)
+                    set({ user, isAuthenticated: true, isLoading: false })
+                    return
+                }
+            } catch {
+                localStorage.removeItem('argos_session')
+            }
+            set({ user: null, isAuthenticated: false, isLoading: false })
+            return
+        }
+
         try {
             const { data: { session } } = await supabase.auth.getSession()
 
@@ -65,6 +81,18 @@ export const useAuthStore = create<AuthState>((set) => ({
     },
 
     register: async (email, username, password) => {
+        if (isSheetsMode) {
+            const user: UserProfile = {
+                id: 'mock-user-' + Math.random().toString(36).substring(2, 9),
+                username: username.toLowerCase().trim(),
+                email,
+                role: 'admin' as any
+            }
+            localStorage.setItem('argos_session', JSON.stringify(user))
+            set({ user, isAuthenticated: true, isLoading: false })
+            return
+        }
+
         const { error: signUpError } = await supabase.auth.signUp({
             email,
             password,
@@ -84,6 +112,18 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     login: async (username, password) => {
         const normalizedUsername = username.toLowerCase().trim()
+
+        if (isSheetsMode) {
+            const user: UserProfile = {
+                id: 'mock-user-id',
+                username: normalizedUsername,
+                email: `${normalizedUsername}@gaeco.mp.br`,
+                role: 'admin' as any
+            }
+            localStorage.setItem('argos_session', JSON.stringify(user))
+            set({ user, isAuthenticated: true, isLoading: false })
+            return
+        }
 
         // RPC SECURITY DEFINER — não é bloqueada por RLS
         const { data, error: rpcError } = await supabase
@@ -117,7 +157,14 @@ export const useAuthStore = create<AuthState>((set) => ({
     },
 
     logout: async () => {
+        if (isSheetsMode) {
+            localStorage.removeItem('argos_session')
+            set({ user: null, isAuthenticated: false, isLoading: false })
+            return
+        }
+
         await supabase.auth.signOut()
         set({ user: null, isAuthenticated: false, isLoading: false })
     },
 }))
+

@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react'
 import { X, MapPin, Plus, Trash2 } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet'
 import { useThemeStore } from '@/store/themeStore'
-import { atualizar } from '@/lib/db/investigados'
-import { supabase } from '@/lib/supabase'
+import { dbInvestigados } from '@/lib/db/investigados'
 import { registrarAudit } from '@/lib/audit'
 import toast from 'react-hot-toast'
 import { validarCPF, validarCNPJ } from '@/utils/validation'
+import { isConcurrencyError } from '@/lib/concurrency'
 
 interface Props {
     open: boolean
@@ -22,6 +22,8 @@ export function InvestigadoEditModal({ open, onClose, data, onSalvo }: Props) {
     const [coords, setCoords] = useState<[number, number] | null>(null)
     const [currentAddressIdx, setCurrentAddressIdx] = useState<number | null>(null)
     const [mapSearch, setMapSearch] = useState('')
+    // Snapshot do updated_at capturado ao abrir o modal
+    const [updatedAtSnapshot, setUpdatedAtSnapshot] = useState<string | undefined>(undefined)
 
     const [formData, setFormData] = useState({
         nome: '',
@@ -53,6 +55,8 @@ export function InvestigadoEditModal({ open, onClose, data, onSalvo }: Props) {
                 observacoes: data.observacoes || ''
             })
             setEnderecos(data.enderecos || [])
+            // Captura o timestamp no momento da abertura do modal
+            setUpdatedAtSnapshot(data.updated_at)
         }
     }, [data, open])
 
@@ -76,8 +80,8 @@ export function InvestigadoEditModal({ open, onClose, data, onSalvo }: Props) {
 
         setLoading(true)
         try {
-            // 1. Atualizar dados básicos
-            await atualizar(data.id, {
+            // 1. Atualizar dados básicos com controle de concorrência
+            await dbInvestigados.atualizar(data.id, {
                 nome: formData.nome,
                 vulgo: formData.vulgo,
                 cpf: formData.cpf || null,
@@ -88,28 +92,35 @@ export function InvestigadoEditModal({ open, onClose, data, onSalvo }: Props) {
                 faccionado: formData.faccionado || null,
                 papel_organizacao: formData.papel_organizacao || null,
                 observacoes: formData.observacoes || null
-            })
+            }, updatedAtSnapshot)
 
             // 2. Sincronizar endereços
-            // Simplificado: remove todos e reinsere os atuais (ou lógica de delta)
-            await supabase.from('enderecos').delete().eq('investigado_id', data.id)
-            if (enderecos.length > 0) {
-                const rows = enderecos.map(e => ({
-                    investigado_id: data.id,
-                    logradouro: e.logradouro,
-                    lat: e.lat,
-                    lng: e.lng,
-                    origem: e.origem || 'MANUAL'
-                }))
-                await supabase.from('enderecos').insert(rows)
-            }
+            await dbInvestigados.sincronizarEnderecos(data.id, enderecos)
 
             await registrarAudit('EDITAR_INVESTIGADO', 'investigados', data.id)
             toast.success('Dados atualizados com sucesso')
             onSalvo()
             onClose()
         } catch (error: any) {
-            toast.error(error.message || 'Erro ao salvar')
+            if (isConcurrencyError(error)) {
+                toast.error(
+                    (t) => (
+                        <span style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <strong>⚠️ Conflito de Edição</strong>
+                            <span style={{ fontSize: '13px' }}>Este investigado foi modificado por outro analista enquanto você editava.</span>
+                            <button
+                                onClick={() => { window.location.reload(); toast.dismiss(t.id) }}
+                                style={{ marginTop: '4px', padding: '4px 10px', borderRadius: '4px', border: 'none', background: 'var(--accent-color)', color: 'white', cursor: 'pointer', fontSize: '12px' }}
+                            >
+                                Recarregar página
+                            </button>
+                        </span>
+                    ),
+                    { duration: 10000 }
+                )
+            } else {
+                toast.error(error.message || 'Erro ao salvar')
+            }
         } finally {
             setLoading(false)
         }

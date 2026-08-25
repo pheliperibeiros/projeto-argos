@@ -1,7 +1,13 @@
 import { supabase } from '@/lib/supabase'
-
+import { atualizarComControle } from '@/lib/concurrency'
+import { isSheetsMode } from '@/lib/env'
+import { sheetsClient } from '@/lib/googleSheetsClient'
 
 export async function buscarInvestigados(q: string, campo: string = 'Todos', papel: string = 'Todos') {
+    if (isSheetsMode) {
+        return sheetsClient.investigados.buscarInvestigados(q, campo, papel)
+    }
+
     const { data, error } = await supabase.rpc('search_investigados_v5', {
         p_term: q,
         p_campo: campo,
@@ -26,6 +32,10 @@ export async function buscarInvestigados(q: string, campo: string = 'Todos', pap
 }
 
 export async function buscarParaAutocomplete(q: string) {
+    if (isSheetsMode) {
+        return sheetsClient.investigados.buscarParaAutocomplete(q)
+    }
+
     if (q.length < 3) return []
 
     const { data, error } = await supabase.rpc('autocomplete_investigados_v2', {
@@ -37,6 +47,10 @@ export async function buscarParaAutocomplete(q: string) {
 }
 
 export async function buscarPorId(id: string) {
+    if (isSheetsMode) {
+        return sheetsClient.investigados.buscarPorId(id)
+    }
+
     const { data: inv, error } = await supabase
         .from('investigados')
         .select(`
@@ -136,6 +150,10 @@ export async function buscarPorId(id: string) {
 }
 
 export async function sincronizarReceitaWS(id: string, cnpj: string) {
+    if (isSheetsMode) {
+        return sheetsClient.investigados.sincronizarReceitaWS(id, cnpj)
+    }
+
     try {
         const cnpjLimpo = cnpj.replace(/\D/g, '')
         const response = await fetch(`/api-receita/v1/cnpj/${cnpjLimpo}`)
@@ -166,6 +184,10 @@ export async function sincronizarReceitaWS(id: string, cnpj: string) {
 }
 
 export async function criar(data: any) {
+    if (isSheetsMode) {
+        return sheetsClient.investigados.criar(data)
+    }
+
     const enderecosInfo = data.enderecos
     const insertData = { ...data }
     delete insertData.enderecos
@@ -218,10 +240,20 @@ export async function criar(data: any) {
     return created
 }
 
-export async function atualizar(id: string, data: any) {
+export async function atualizar(id: string, data: any, updatedAt?: string) {
+    if (isSheetsMode) {
+        return sheetsClient.investigados.atualizar(id, data, updatedAt)
+    }
+
     const updateData = { ...data }
     delete updateData.enderecos // Endereços devem ser geridos separadamente ou em lote
 
+    // Se updatedAt for fornecido, usa o controle de concorrência otimista
+    if (updatedAt) {
+        return atualizarComControle('investigados', id, updateData, updatedAt, 'investigado')
+    }
+
+    // Fallback sem controle (compatibilidade retroativa)
     const { data: updated, error } = await supabase
         .from('investigados')
         .update(updateData)
@@ -234,12 +266,38 @@ export async function atualizar(id: string, data: any) {
 }
 
 export async function vincularSocio(empresaId: string, socioId: string) {
+    if (isSheetsMode) {
+        return sheetsClient.investigados.vincularSocio(empresaId, socioId)
+    }
+
     const { error } = await supabase
         .from('socios_empresa')
         .insert({ empresa_id: empresaId, socio_id: socioId })
 
     if (error && error.code !== '23505') {
         throw new Error(error.message)
+    }
+}
+
+export async function sincronizarEnderecos(investigadoId: string, enderecos: any[]): Promise<void> {
+    if (isSheetsMode) {
+        return sheetsClient.investigados.sincronizarEnderecos(investigadoId, enderecos)
+    }
+
+    // Modo Supabase
+    const { error: delErr } = await supabase.from('enderecos').delete().eq('investigado_id', investigadoId)
+    if (delErr) throw new Error(delErr.message)
+
+    if (enderecos.length > 0) {
+        const rows = enderecos.map(e => ({
+            investigado_id: investigadoId,
+            logradouro: e.logradouro,
+            lat: e.lat,
+            lng: e.lng,
+            origem: e.origem || 'MANUAL'
+        }))
+        const { error: insErr } = await supabase.from('enderecos').insert(rows)
+        if (insErr) throw new Error(insErr.message)
     }
 }
 
@@ -250,5 +308,7 @@ export const dbInvestigados = {
     criar,
     atualizar,
     vincularSocio,
-    sincronizarReceitaWS
+    sincronizarReceitaWS,
+    sincronizarEnderecos
 }
+

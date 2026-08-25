@@ -1,6 +1,13 @@
 import { supabase } from '@/lib/supabase'
+import { atualizarComControle } from '@/lib/concurrency'
+import { isSheetsMode } from '@/lib/env'
+import { sheetsClient } from '@/lib/googleSheetsClient'
 
 export async function listar() {
+    if (isSheetsMode) {
+        return sheetsClient.casos.listar()
+    }
+
     const { data, error } = await supabase
         .from('casos')
         .select(`
@@ -23,6 +30,10 @@ export async function listar() {
 }
 
 export async function buscarPorId(id: string) {
+    if (isSheetsMode) {
+        return sheetsClient.casos.buscarPorId(id)
+    }
+
     const { data, error } = await supabase
         .from('casos')
         .select(`
@@ -49,6 +60,10 @@ export async function buscarPorId(id: string) {
 }
 
 export async function criar(data: any) {
+    if (isSheetsMode) {
+        return sheetsClient.casos.criar(data)
+    }
+
     const { data: created, error } = await supabase
         .from('casos')
         .insert({
@@ -67,18 +82,30 @@ export async function criar(data: any) {
     return created
 }
 
-export async function atualizar(id: string, data: any) {
+export async function atualizar(id: string, data: any, updatedAt?: string) {
+    if (isSheetsMode) {
+        return sheetsClient.casos.atualizar(id, data, updatedAt)
+    }
+
+    const payload = {
+        codinome: data.codinome,
+        e_proc: data.eProc,
+        e_proc_investigacao: data.eProcInvestigacao,
+        integrar_e: data.integrarE,
+        tags: data.tags,
+        natureza: data.natureza,
+        status: data.status
+    }
+
+    // Se updatedAt for fornecido, usa o controle de concorrência otimista
+    if (updatedAt) {
+        return atualizarComControle('casos', id, payload, updatedAt, 'caso')
+    }
+
+    // Fallback sem controle (compatibilidade com chamadas sem snapshot)
     const { data: updated, error } = await supabase
         .from('casos')
-        .update({
-            codinome: data.codinome,
-            e_proc: data.eProc,
-            e_proc_investigacao: data.eProcInvestigacao,
-            integrar_e: data.integrarE,
-            tags: data.tags,
-            natureza: data.natureza,
-            status: data.status
-        })
+        .update(payload)
         .eq('id', id)
         .select()
         .single()
@@ -88,11 +115,19 @@ export async function atualizar(id: string, data: any) {
 }
 
 export async function excluir(id: string) {
+    if (isSheetsMode) {
+        return sheetsClient.casos.excluir(id)
+    }
+
     const { error } = await supabase.from('casos').delete().eq('id', id)
     if (error) throw new Error(error.message)
 }
 
 export async function checarEProcUnico(eProc: string, excludeId?: string) {
+    if (isSheetsMode) {
+        return sheetsClient.casos.checarEProcUnico(eProc, excludeId)
+    }
+
     let query = supabase
         .from('casos')
         .select('id', { count: 'exact', head: true })
@@ -107,6 +142,10 @@ export async function checarEProcUnico(eProc: string, excludeId?: string) {
 }
 
 export async function vincularInvestigado(casoId: string, investigadoId: string) {
+    if (isSheetsMode) {
+        return sheetsClient.casos.vincularInvestigado(casoId, investigadoId)
+    }
+
     const { error } = await supabase
         .from('caso_investigado')
         .insert({ caso_id: casoId, investigado_id: investigadoId })
@@ -119,6 +158,10 @@ export async function vincularInvestigado(casoId: string, investigadoId: string)
 }
 
 export async function desvincularInvestigado(casoId: string, investigadoId: string) {
+    if (isSheetsMode) {
+        return sheetsClient.casos.desvincularInvestigado(casoId, investigadoId)
+    }
+
     const { error } = await supabase
         .from('caso_investigado')
         .delete()
@@ -128,6 +171,10 @@ export async function desvincularInvestigado(casoId: string, investigadoId: stri
 }
 
 export async function buscarComInvestigados(q: string) {
+    if (isSheetsMode) {
+        return sheetsClient.casos.buscarComInvestigados(q)
+    }
+
     const { data, error } = await supabase
         .from('casos')
         .select(`
@@ -161,3 +208,4 @@ export const dbCasos = {
     desvincularInvestigado,
     buscarComInvestigados
 }
+

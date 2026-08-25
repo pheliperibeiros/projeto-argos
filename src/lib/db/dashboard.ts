@@ -1,7 +1,13 @@
 import { supabase } from '@/lib/supabase'
 import { inicioAno } from '@/lib/formatters'
+import { isSheetsMode } from '@/lib/env'
+import { sheetsClient } from '@/lib/googleSheetsClient'
 
 export async function buscarStats() {
+    if (isSheetsMode) {
+        return sheetsClient.dashboard.buscarStats()
+    }
+
     const anoCorrente = inicioAno()
 
     // Atualiza o pico do mês corrente antes de ler

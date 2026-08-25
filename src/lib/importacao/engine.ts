@@ -24,6 +24,10 @@ import ExcelJS from 'exceljs' // <-- Nova dependência para gerar o template com
 import { supabase } from '@/lib/supabase'
 import { validarCPF, validarCNPJ } from '@/utils/validation'
 import { registrarAudit } from '@/lib/audit'
+import { isSheetsMode } from '@/lib/env'
+import { dbCasos } from '@/lib/db/casos'
+import { dbInvestigados } from '@/lib/db/investigados'
+import { sheetsClient } from '@/lib/googleSheetsClient'
 
 // ─── TIPOS ───────────────────────────────────────────────
 
@@ -316,23 +320,39 @@ export async function processarImportacao(
     console.log('[Import] Mapeamento concluído:', mapa)
 
     onProgresso?.(0, linhas.length, { linha: 0, status: 'sucesso', nome: '' }, 'Consultando investigados existentes...')
-    const { data: existentes, error: extErr } = await supabase.from('investigados').select('id, nome, cpf, cnpj')
-    if (extErr) console.warn('[Import] Falha ao carregar existentes:', extErr.message)
+
+    // Carrega existentes via camada de abstração (sheets ou supabase)
+    let existentesRaw: any[] = []
+    if (isSheetsMode) {
+        // sheetsClient.investigados.buscarInvestigados retorna lista simplificada;
+        // usamos dbInvestigados que delega corretamente
+        existentesRaw = await sheetsClient.investigados.buscarInvestigados('', 'Todos', 'Todos')
+    } else {
+        const { data, error: extErr } = await supabase.from('investigados').select('id, nome, cpf, cnpj')
+        if (extErr) console.warn('[Import] Falha ao carregar existentes:', extErr.message)
+        existentesRaw = data || []
+    }
 
     const docExistente = new Map<string, { id: string; nome: string }>()
-        ; (existentes || []).forEach((e: any) => {
-            if (e.cpf) docExistente.set(e.cpf, { id: e.id, nome: e.nome })
-            if (e.cnpj) docExistente.set(e.cnpj, { id: e.id, nome: e.nome })
-        })
+    existentesRaw.forEach((e: any) => {
+        if (e.cpf) docExistente.set(e.cpf, { id: e.id, nome: e.nome })
+        if (e.cnpj) docExistente.set(e.cnpj, { id: e.id, nome: e.nome })
+    })
 
     onProgresso?.(0, linhas.length, { linha: 0, status: 'sucesso', nome: '' }, 'Consultando casos existentes...')
-    const { data: casosExistentes, error: casErr } = await supabase.from('casos').select('id, e_proc, codinome')
-    if (casErr) console.warn('[Import] Falha ao carregar casos:', casErr.message)
+    let casosRaw: any[] = []
+    if (isSheetsMode) {
+        casosRaw = await sheetsClient.casos.listar()
+    } else {
+        const { data, error: casErr } = await supabase.from('casos').select('id, e_proc, codinome')
+        if (casErr) console.warn('[Import] Falha ao carregar casos:', casErr.message)
+        casosRaw = data || []
+    }
 
     const casoPorEproc = new Map<string, string>()
-        ; (casosExistentes || []).forEach((c: any) => {
-            if (c.e_proc) casoPorEproc.set(c.e_proc, c.id)
-        })
+    casosRaw.forEach((c: any) => {
+        if (c.e_proc) casoPorEproc.set(c.e_proc, c.id)
+    })
 
     const casosNovos = new Map<string, string>()
     const idsInseridos: string[] = []
@@ -388,31 +408,43 @@ export async function processarImportacao(
                     const tagsArray = dadosNorm.tags ? dadosNorm.tags.split(';').map(t => t.trim()).filter(Boolean) : []
                     onProgresso?.(i, linhas.length, { linha: numLinha, status: 'sucesso', nome: dadosNorm.nome }, `Criando caso: ${eproc}`)
 
-                    const { data: novoCaso, error: casoErr } = await supabase
-                        .from('casos')
-                        .insert({
+                    if (isSheetsMode) {
+                        const novoCaso = await dbCasos.criar({
                             codinome: dadosNorm.codinome || `Caso ${eproc}`,
                             e_proc: eproc,
                             integrar_e: dadosNorm.integrar_e || '',
-                            natureza: dadosNorm.natureza || 'NOTICIA_DE_FATO',
+                            natureza: (dadosNorm.natureza || 'NOTICIA_DE_FATO') as any,
                             tags: tagsArray,
                             status: 'ATIVO'
                         })
-                        .select('id')
-                        .single()
+                        casoId = novoCaso.id
+                    } else {
+                        const { data: novoCaso, error: casoErr } = await supabase
+                            .from('casos')
+                            .insert({
+                                codinome: dadosNorm.codinome || `Caso ${eproc}`,
+                                e_proc: eproc,
+                                integrar_e: dadosNorm.integrar_e || '',
+                                natureza: (dadosNorm.natureza || 'NOTICIA_DE_FATO') as any,
+                                tags: tagsArray,
+                                status: 'ATIVO'
+                            } as any)
+                            .select('id')
+                            .single()
 
-                    if (casoErr) {
-                        const r: ResultadoLinha = { linha: numLinha, status: 'erro', nome: dadosNorm.nome, motivo: `Erro ao criar caso: ${casoErr.message}` }
-                        detalhes.push(r)
-                        erros++
-                        onProgresso?.(i + 1, linhas.length, r, `Falha ao criar caso`)
-                        continue
+                        if (casoErr) {
+                            const r: ResultadoLinha = { linha: numLinha, status: 'erro', nome: dadosNorm.nome, motivo: `Erro ao criar caso: ${casoErr.message}` }
+                            detalhes.push(r)
+                            erros++
+                            onProgresso?.(i + 1, linhas.length, r, `Falha ao criar caso`)
+                            continue
+                        }
+                        casoId = novoCaso.id
                     }
 
-                    casoId = novoCaso.id
-                    casosNovos.set(eproc, novoCaso.id)
-                    casoPorEproc.set(eproc, novoCaso.id)
-                    casoIdsInseridos.push(novoCaso.id)
+                    casosNovos.set(eproc, casoId!)
+                    casoPorEproc.set(eproc, casoId!)
+                    casoIdsInseridos.push(casoId!)
                     casosCriados++
                 }
             }
@@ -423,8 +455,12 @@ export async function processarImportacao(
                 investigadoId = docExistente.get(docKey)!.id
 
                 if (casoId) {
-                    const { error: vincErr } = await supabase.from('caso_investigado').insert({ caso_id: casoId, investigado_id: investigadoId })
-                    if (!vincErr || vincErr.code === '23505') vinculosCriados.push({ caso_id: casoId, investigado_id: investigadoId })
+                    if (isSheetsMode) {
+                        await sheetsClient.casos.vincularInvestigado(casoId, investigadoId)
+                    } else {
+                        const { error: vincErr } = await supabase.from('caso_investigado').insert({ caso_id: casoId, investigado_id: investigadoId })
+                        if (!vincErr || vincErr.code === '23505') vinculosCriados.push({ caso_id: casoId, investigado_id: investigadoId })
+                    }
                 }
 
                 const r: ResultadoLinha = { linha: numLinha, status: 'duplicata', nome: dadosNorm.nome, id: investigadoId, motivo: `Já existente no sistema (vinculado ao caso)` }
@@ -452,29 +488,43 @@ export async function processarImportacao(
                 observacoes: dadosNorm.observacoes || null,
             }
 
-            const { data: inserted, error: insertErr } = await supabase.from('investigados').insert(payload).select('id').single()
-
-            if (insertErr) {
-                const r: ResultadoLinha = { linha: numLinha, status: 'erro', nome: dadosNorm.nome, motivo: insertErr.message }
-                detalhes.push(r)
-                erros++
-                onProgresso?.(i + 1, linhas.length, r)
-                continue
+            let insertedId: string
+            if (isSheetsMode) {
+                const created = await dbInvestigados.criar(payload)
+                insertedId = created.id
+            } else {
+                const { data: inserted, error: insertErr } = await supabase.from('investigados').insert(payload).select('id').single()
+                if (insertErr) {
+                    const r: ResultadoLinha = { linha: numLinha, status: 'erro', nome: dadosNorm.nome, motivo: insertErr.message }
+                    detalhes.push(r)
+                    erros++
+                    onProgresso?.(i + 1, linhas.length, r)
+                    continue
+                }
+                insertedId = inserted.id
             }
 
-            idsInseridos.push(inserted.id)
-            if (docKey) docExistente.set(docKey, { id: inserted.id, nome: dadosNorm.nome })
+            idsInseridos.push(insertedId)
+            if (docKey) docExistente.set(docKey, { id: insertedId, nome: dadosNorm.nome })
 
             if (casoId) {
-                const { error: vincErr } = await supabase.from('caso_investigado').insert({ caso_id: casoId, investigado_id: inserted.id })
-                if (!vincErr || vincErr.code === '23505') vinculosCriados.push({ caso_id: casoId, investigado_id: inserted.id })
+                if (isSheetsMode) {
+                    await sheetsClient.casos.vincularInvestigado(casoId, insertedId)
+                } else {
+                    const { error: vincErr } = await supabase.from('caso_investigado').insert({ caso_id: casoId, investigado_id: insertedId })
+                    if (!vincErr || vincErr.code === '23505') vinculosCriados.push({ caso_id: casoId, investigado_id: insertedId })
+                }
             }
 
             if (dadosNorm.endereco) {
-                await supabase.from('enderecos').insert({ investigado_id: inserted.id, logradouro: dadosNorm.endereco, origem: 'IMPORTACAO' })
+                if (isSheetsMode) {
+                    await sheetsClient.investigados.sincronizarEnderecos(insertedId, [{ logradouro: dadosNorm.endereco, origem: 'IMPORTACAO', lat: null, lng: null }])
+                } else {
+                    await supabase.from('enderecos').insert({ investigado_id: insertedId, logradouro: dadosNorm.endereco, origem: 'IMPORTACAO' })
+                }
             }
 
-            const r: ResultadoLinha = { linha: numLinha, status: 'sucesso', nome: dadosNorm.nome, id: inserted.id }
+            const r: ResultadoLinha = { linha: numLinha, status: 'sucesso', nome: dadosNorm.nome, id: insertedId }
             detalhes.push(r)
             sucesso++
             onProgresso?.(i + 1, linhas.length, r, `Processado: ${dadosNorm.nome}`)
@@ -483,15 +533,18 @@ export async function processarImportacao(
         await registrarAudit('IMPORTACAO_LOTE', 'investigados', `${sucesso} inseridos, ${erros} erros, ${duplicatas} duplicatas, ${casosCriados} casos criados`)
 
     } catch (criticalErr: any) {
-        if (vinculosCriados.length > 0) {
-            for (const v of vinculosCriados) await supabase.from('caso_investigado').delete().match(v)
-        }
-        if (idsInseridos.length > 0) {
-            await supabase.from('enderecos').delete().in('investigado_id', idsInseridos)
-            await supabase.from('investigados').delete().in('id', idsInseridos)
-        }
-        if (casoIdsInseridos.length > 0) {
-            await supabase.from('casos').delete().in('id', casoIdsInseridos)
+        // Rollback apenas disponível no modo Supabase (sheets não tem transação)
+        if (!isSheetsMode) {
+            if (vinculosCriados.length > 0) {
+                for (const v of vinculosCriados) await supabase.from('caso_investigado').delete().match(v)
+            }
+            if (idsInseridos.length > 0) {
+                await supabase.from('enderecos').delete().in('investigado_id', idsInseridos)
+                await supabase.from('investigados').delete().in('id', idsInseridos)
+            }
+            if (casoIdsInseridos.length > 0) {
+                await supabase.from('casos').delete().in('id', casoIdsInseridos)
+            }
         }
         throw new Error(`Falha crítica na importação (rollback executado): ${criticalErr.message}`)
     }

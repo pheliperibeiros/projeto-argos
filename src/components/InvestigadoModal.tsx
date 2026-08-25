@@ -1,13 +1,12 @@
 import React, { useState } from 'react'
 import { X, MapPin, User, Building2 } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet'
-import { criar, vincularSocio } from '@/lib/db/investigados'
+import { dbInvestigados } from '@/lib/db/investigados'
 import { useDebounce } from '@/hooks/useDebounce'
 import { registrarAudit } from '@/lib/audit'
 import toast from 'react-hot-toast'
 import { Search, Plus } from 'lucide-react'
 import { validarCPF, validarCNPJ } from '@/utils/validation'
-import { supabase } from '@/lib/supabase'
 
 interface InvestigadoResumo {
     id: string
@@ -52,15 +51,10 @@ export function InvestigadoModal({ open, onClose, onSalvo }: Props) {
     React.useEffect(() => {
         if (debouncedSearch.length >= 3) {
             const fetchDirect = async () => {
-                const { data, error } = await supabase
-                    .from('investigados')
-                    .select('id, nome, cpf, cnpj')
-                    .or(`nome.ilike.%${debouncedSearch}%,cpf.ilike.%${debouncedSearch}%,cnpj.ilike.%${debouncedSearch}%`)
-                    .limit(15)
-
-                if (!error && data) {
+                try {
+                    const data = await dbInvestigados.buscarParaAutocomplete(debouncedSearch)
                     setSearchResults(data)
-                } else {
+                } catch {
                     setSearchResults([])
                 }
             }
@@ -110,12 +104,12 @@ export function InvestigadoModal({ open, onClose, onSalvo }: Props) {
                 ] : []
             }
 
-            const novo = await criar(payload)
+            const novo = await dbInvestigados.criar(payload)
 
             // Vincular sócios se for PJ
             if (tipo === 'PJ' && socios.length > 0) {
                 try {
-                    await Promise.all(socios.map(s => vincularSocio(novo.id, s.id)))
+                    await Promise.all(socios.map(s => dbInvestigados.vincularSocio(novo.id, s.id)))
                 } catch (socioErr) {
                     console.warn('[Cadastro] Erro ao vincular alguns sócios:', socioErr)
                     toast.error('Investigado criado, mas alguns vínculos de sócios falharam.')

@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { X, Search, Plus, Save, ChevronLeft } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { isConcurrencyError } from '@/lib/concurrency'
 
 import { dbCasos } from '@/lib/db/casos'
 import { dbInvestigados } from '@/lib/db/investigados'
@@ -38,6 +39,8 @@ export default function CasoFormPage() {
     const [investigadosVinculados, setInvestigadosVinculados] = useState<any[]>([])
     const [searchTerm, setSearchTerm] = useState('')
     const [isModalOpen, setIsModalOpen] = useState(false)
+    // Snapshot do updated_at no momento em que o formulário de edição foi aberto
+    const [updatedAtSnapshot, setUpdatedAtSnapshot] = useState<string | undefined>(undefined)
 
     const debouncedSearch = useDebounce(searchTerm, 300)
 
@@ -82,6 +85,8 @@ export default function CasoFormPage() {
             setValue('tags', casoExistente.tags ?? [])
             setTags(casoExistente.tags ?? [])
             setInvestigadosVinculados(casoExistente.investigados || [])
+            // Captura o timestamp no momento da abertura — usado no controle de concorrência
+            setUpdatedAtSnapshot(casoExistente.updated_at)
         }
     }, [casoExistente, setValue])
 
@@ -104,7 +109,7 @@ export default function CasoFormPage() {
                     natureza: data.natureza,
                     status: data.status,
                     tags: tags // Passa nativamente como array
-                })
+                }, updatedAtSnapshot)
 
                 // Recalcular vínculos
                 const idsAntigos = (casoExistente?.investigados || []).map((inv: any) => inv.id)
@@ -148,7 +153,26 @@ export default function CasoFormPage() {
             navigate('/casos')
         },
         onError: (err: any) => {
-            toast.error('Erro ao salvar caso: ' + err.message)
+            if (isConcurrencyError(err)) {
+                // Conflito de edição simultânea detectado
+                toast.error(
+                    (t) => (
+                        <span style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <strong>⚠️ Conflito de Edição</strong>
+                            <span style={{ fontSize: '13px' }}>Este caso foi modificado por outro analista enquanto você editava.</span>
+                            <button
+                                onClick={() => { window.location.reload(); toast.dismiss(t.id) }}
+                                style={{ marginTop: '4px', padding: '4px 10px', borderRadius: '4px', border: 'none', background: 'var(--accent-color)', color: 'white', cursor: 'pointer', fontSize: '12px' }}
+                            >
+                                Recarregar página
+                            </button>
+                        </span>
+                    ),
+                    { duration: 10000 }
+                )
+            } else {
+                toast.error('Erro ao salvar caso: ' + err.message)
+            }
         }
     })
 

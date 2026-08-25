@@ -1,7 +1,13 @@
 import { supabase } from '@/lib/supabase'
+import { isSheetsMode } from '@/lib/env'
+import { sheetsClient } from '@/lib/googleSheetsClient'
 
 export const dbRelatorios = {
     async buscarDII(investigadoId: string) {
+        if (isSheetsMode) {
+            return sheetsClient.relatorios.buscarDII(investigadoId)
+        }
+
         const { data, error } = await supabase
             .from('investigados')
             .select(`
@@ -31,6 +37,10 @@ export const dbRelatorios = {
     },
 
     async buscarConectividade(casoId: string) {
+        if (isSheetsMode) {
+            return sheetsClient.relatorios.buscarConectividade(casoId)
+        }
+
         // 1. Buscar investigados do caso
         const { data: vinculos, error: e1 } = await supabase
             .from('caso_investigado')
@@ -69,6 +79,10 @@ export const dbRelatorios = {
     },
 
     async buscarFinanceiro(casoId: string) {
+        if (isSheetsMode) {
+            return sheetsClient.relatorios.buscarFinanceiro(casoId)
+        }
+
         // Investigados PJ do caso
         const { data: vinculos, error } = await supabase
             .from('caso_investigado')
@@ -91,6 +105,10 @@ export const dbRelatorios = {
     },
 
     async buscarEfetividade() {
+        if (isSheetsMode) {
+            return sheetsClient.relatorios.buscarEfetividade()
+        }
+
         const [cautelares, investigados, casos] = await Promise.all([
             supabase.from('cautelares').select('tipo, ativo'),
             supabase.from('investigados').select('faccionado'),
@@ -105,6 +123,10 @@ export const dbRelatorios = {
     },
 
     async buscarFaccionados() {
+        if (isSheetsMode) {
+            return sheetsClient.relatorios.buscarFaccionados()
+        }
+
         const { data, error } = await supabase
             .from('investigados')
             .select('id, nome, vulgo, cpf, data_nascimento, faccionado, papel_organizacao')
@@ -115,5 +137,20 @@ export const dbRelatorios = {
 
         if (error) throw error
         return data || []
+    },
+
+    async buscarEnderecosGeolocalizados() {
+        if (isSheetsMode) {
+            return sheetsClient.relatorios.buscarEnderecosGeolocalizados()
+        }
+
+        const { data, error } = await supabase
+            .from('enderecos')
+            .select('logradouro, lat, lng, investigado_id')
+            .not('lat', 'is', null)
+
+        if (error) throw error
+        return data || []
     }
 }
+

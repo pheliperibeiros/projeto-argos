@@ -12,6 +12,7 @@ import { MapPin, ChevronDown, ChevronUp } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import { useThemeStore } from '@/store/themeStore'
 import { supabase } from '@/lib/supabase'
+import { isSheetsMode } from '@/lib/env'
 
 const VisNetworkGraph = lazy(() => import('@/components/VisNetworkGraph'))
 
@@ -445,6 +446,20 @@ export default function InvestigadoPage() {
             const checkPEP = async () => {
                 setIsPepLoading(true)
                 try {
+                    if (isSheetsMode) {
+                        // Mock local check to return PEP for specific names/CPFs or mock PEP data
+                        if (data.nome.toLowerCase().includes('pep') || data.nome.toLowerCase().includes('político') || data.cpf.startsWith('999')) {
+                            setPepData({
+                                descricaoFuncao: 'DEPUTADO ESTADUAL',
+                                nomeOrgao: 'Assembleia Legislativa',
+                                dataInicioExercicio: '2023-01-01'
+                            })
+                        } else {
+                            setPepData(null)
+                        }
+                        return
+                    }
+
                     const { data: pepResult, error } = await supabase.functions.invoke('check-pep', {
                         body: { cpf: data.cpf }
                     })
