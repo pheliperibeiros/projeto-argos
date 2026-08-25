@@ -126,6 +126,11 @@ function getLocalDb() {
     }
     try {
         const parsed = JSON.parse(val)
+        // Se contiver os dados mock de demonstração antigos ('c1', 'c2', 'i1'), reseta o banco local para o novo estado limpo
+        if (parsed.casos?.some((c: any) => c.id === 'c1' || c.id === 'c2') || parsed.investigados?.some((i: any) => i.id === 'i1' || i.id === 'i2')) {
+            localStorage.setItem('argos_sheets_db', JSON.stringify(DEFAULT_DB))
+            return DEFAULT_DB
+        }
         // Garante que todas as chaves obrigatórias estejam lá
         const keys = Object.keys(DEFAULT_DB) as (keyof typeof DEFAULT_DB)[]
         for (const k of keys) {
