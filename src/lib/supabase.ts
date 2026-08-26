@@ -7,8 +7,8 @@ const anon = env.VITE_SUPABASE_ANON_KEY
 
 export const supabase = createClient<Database>(url, anon, {
     auth: {
-        persistSession: true,
-        autoRefreshToken: true,
+        persistSession: !env.VITE_BACKEND_MODE || env.VITE_BACKEND_MODE !== 'sheets',
+        autoRefreshToken: !env.VITE_BACKEND_MODE || env.VITE_BACKEND_MODE !== 'sheets',
         detectSessionInUrl: false,
     },
 })
