@@ -15,7 +15,7 @@ import { z } from 'zod';
 
 const envSchema = z.object({
     // --- Modo de backend ---
-    VITE_BACKEND_MODE: z.enum(['supabase', 'api', 'sheets']).default('supabase'),
+    VITE_BACKEND_MODE: z.preprocess((val) => typeof val === 'string' ? val.trim() : val, z.enum(['supabase', 'api', 'sheets']).default('supabase')),
 
     // --- Supabase (ambiente atual) ---
     VITE_SUPABASE_URL: z.string().url().or(z.literal('')).optional(),
@@ -44,7 +44,8 @@ const parsedEnv = envSchema.safeParse(_env);
 if (!parsedEnv.success) {
     console.error(
         '❌ Variáveis de ambiente inválidas ou ausentes. Verifique o arquivo .env.local (baseado no .env.example):',
-        parsedEnv.error.format()
+        JSON.stringify(parsedEnv.error.format(), null, 2),
+        _env
     );
     throw new Error('As variáveis de ambiente obrigatórias não estão configuradas corretamente.');
 }
