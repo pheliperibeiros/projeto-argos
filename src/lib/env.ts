@@ -30,7 +30,7 @@ const envSchema = z.object({
     VITE_AUTH_PROVIDER: z.enum(['google', 'local', 'sso']).optional(),
 
     // Google OAuth2 — Client ID do Google Cloud Console (necessário no modo sheets para login com Google)
-    VITE_GOOGLE_CLIENT_ID: z.string().min(1).optional(),
+    VITE_GOOGLE_CLIENT_ID: z.string().optional(),
 
     // --- Google Sheets ---
     VITE_GOOGLE_SHEETS_WEBAPP_URL: z.string().url().or(z.literal('')).optional(),
