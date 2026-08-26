@@ -1,13 +1,16 @@
 import { create } from 'zustand'
 import { supabase } from '@/lib/supabase'
 import type { UserProfile } from '@/types/auth'
-import { isSheetsMode } from '@/lib/env'
+import { isSheetsMode, env } from '@/lib/env'
+import { sheetsClient } from '@/lib/googleSheetsClient'
+import { signInWithGooglePopup } from '@/lib/googleAuth'
 
 interface AuthState {
     user: UserProfile | null
     isAuthenticated: boolean
     isLoading: boolean
-    login: (username: string, password: string) => Promise<void>
+    loginWithGoogle: () => Promise<void>      // Sheets mode: OAuth Google
+    login: (username: string, password: string) => Promise<void>  // Supabase mode (legado)
     register: (email: string, username: string, password: string) => Promise<void>
     logout: () => Promise<void>
     init: () => Promise<void>
@@ -52,7 +55,6 @@ export const useAuthStore = create<AuthState>((set) => ({
                 if (profile) {
                     set({ user: profile, isAuthenticated: true, isLoading: false })
                 } else {
-                    // Usuário autenticado mas sem perfil — logout para evitar estado inválido
                     await supabase.auth.signOut()
                     set({ user: null, isAuthenticated: false, isLoading: false })
                 }
@@ -60,11 +62,9 @@ export const useAuthStore = create<AuthState>((set) => ({
                 set({ isLoading: false })
             }
         } catch {
-            // Qualquer erro na init (ex: rede) não deve travar o app em loading infinito
             set({ isLoading: false })
         }
 
-        // Escuta mudanças de sessão (expiração, logout em outra aba)
         supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_OUT' || !session) {
                 set({ user: null, isAuthenticated: false, isLoading: false })
@@ -74,23 +74,59 @@ export const useAuthStore = create<AuthState>((set) => ({
                     set({ user: profile, isAuthenticated: true, isLoading: false })
                 }
             } else if (event === 'TOKEN_REFRESHED' && session.user) {
-                // Sessão renovada — mantém estado atual, não precisa rebuscar perfil
                 set({ isLoading: false })
             }
         })
     },
 
+    // ─── Sheets Mode: Login com Google OAuth2 ───────────────────────────────
+    loginWithGoogle: async () => {
+        const clientId = env.VITE_GOOGLE_CLIENT_ID
+        if (!clientId) {
+            throw new Error('VITE_GOOGLE_CLIENT_ID não está configurada. Configure no .env.local ou nas variáveis de ambiente do Netlify.')
+        }
+
+        // 1. Abre popup e obtém info do usuário Google
+        const googleUser = await signInWithGooglePopup(clientId)
+
+        // 2. Verifica se o e-mail está na lista de usuários autorizados (planilha aba: profiles)
+        const profile = await sheetsClient.auth.verificarUsuarioPorEmail(googleUser.email)
+
+        if (!profile) {
+            throw new Error(
+                `Acesso negado. A conta "${googleUser.email}" não está autorizada a acessar o sistema.\n` +
+                'Solicite ao administrador que adicione seu e-mail na planilha de usuários.'
+            )
+        }
+
+        // 3. Mapeia role da planilha para o tipo esperado pelo sistema
+        const roleMap: Record<string, string> = {
+            'Administrador': 'COORDENADOR',
+            'COORDENADOR': 'COORDENADOR',
+            'Promotor': 'PROMOTOR',
+            'PROMOTOR': 'PROMOTOR',
+            'Analista': 'ANALISTA',
+            'ANALISTA': 'ANALISTA',
+            'Agente': 'AGENTE',
+            'AGENTE': 'AGENTE',
+        }
+
+        const user: UserProfile = {
+            id: googleUser.sub,
+            username: profile.username || googleUser.name,
+            email: googleUser.email,
+            role: (roleMap[profile.role] || 'ANALISTA') as UserProfile['role'],
+        }
+
+        localStorage.setItem('argos_session', JSON.stringify(user))
+        set({ user, isAuthenticated: true, isLoading: false })
+    },
+
+    // ─── Supabase Mode: Login legado (usuário + senha) ───────────────────────
     register: async (email, username, password) => {
         if (isSheetsMode) {
-            const user: UserProfile = {
-                id: 'mock-user-' + Math.random().toString(36).substring(2, 9),
-                username: username.toLowerCase().trim(),
-                email,
-                role: 'admin' as any
-            }
-            localStorage.setItem('argos_session', JSON.stringify(user))
-            set({ user, isAuthenticated: true, isLoading: false })
-            return
+            // No modo Sheets, novos usuários são adicionados diretamente na planilha pelo admin
+            throw new Error('No modo Google Sheets, o cadastro de usuários é feito diretamente na planilha (aba: profiles) pelo administrador.')
         }
 
         const { error: signUpError } = await supabase.auth.signUp({
@@ -100,7 +136,6 @@ export const useAuthStore = create<AuthState>((set) => ({
         })
         if (signUpError) throw new Error(signUpError.message || 'Erro ao criar conta')
 
-        // Se email auto-confirm estiver ativo, a sessão já existe após signUp
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.user) {
             const profile = await fetchProfile(session.user.id, session.user.email!)
@@ -114,18 +149,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         const normalizedUsername = username.toLowerCase().trim()
 
         if (isSheetsMode) {
-            const user: UserProfile = {
-                id: 'mock-user-id',
-                username: normalizedUsername,
-                email: `${normalizedUsername}@gaeco.mp.br`,
-                role: 'admin' as any
-            }
-            localStorage.setItem('argos_session', JSON.stringify(user))
-            set({ user, isAuthenticated: true, isLoading: false })
-            return
+            throw new Error('Use o botão "Entrar com Google" para autenticar no sistema.')
         }
 
-        // RPC SECURITY DEFINER — não é bloqueada por RLS
         const { data, error: rpcError } = await supabase
             .rpc('get_email_by_username', { p_username: normalizedUsername })
 
@@ -142,7 +168,6 @@ export const useAuthStore = create<AuthState>((set) => ({
             throw new Error(signInError.message)
         }
 
-        // Agora que estamos autenticados, o RLS permite buscar o perfil completo
         const { data: profile } = await supabase
             .from('profiles')
             .select('id, username, role')
@@ -167,4 +192,3 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({ user: null, isAuthenticated: false, isLoading: false })
     },
 }))
-

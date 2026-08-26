@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Autenticando com Google...</title>
+</head>
+
+<body>
+    <script>
+        // Esta página recebe o redirect do Google OAuth2 com o id_token no hash da URL
+        // Extrai o token e envia para a janela pai via postMessage, depois fecha o popup
+        (function () {
+            const hash = window.location.hash.substring(1);
+            const params = new URLSearchParams(hash);
+            const idToken = params.get('id_token');
+            const error = params.get('error');
+
+            if (window.opener) {
+                if (idToken) {
+                    window.opener.postMessage({ type: 'ARGOS_GOOGLE_AUTH', idToken }, window.location.origin);
+                } else {
+                    window.opener.postMessage({ type: 'ARGOS_GOOGLE_AUTH', error: error || 'Token não encontrado' }, window.location.origin);
+                }
+            }
+
+            setTimeout(() => window.close(), 200);
+        })();
+    </script>
+    <p style="font-family:sans-serif;text-align:center;margin-top:80px;color:#666">Autenticado. Fechando janela...</p>
+</body>
+
+</html>

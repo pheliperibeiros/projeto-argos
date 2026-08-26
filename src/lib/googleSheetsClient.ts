@@ -190,6 +190,25 @@ async function postToSheets<T>(action: string, params: Record<string, any> = {})
 }
 
 export const sheetsClient = {
+    auth: {
+        // Verifica se o e-mail do usuário Google está autorizado na planilha (aba: profiles)
+        // Retorna { id, username, email, role } ou null se não autorizado
+        async verificarUsuarioPorEmail(email: string): Promise<Profile | null> {
+            if (!env.VITE_GOOGLE_SHEETS_WEBAPP_URL) {
+                // Modo offline: consulta o localStorage
+                const db = getLocalDb()
+                const profile = db.profiles.find(p => p.email.toLowerCase() === email.toLowerCase())
+                return profile || null
+            }
+            // Com planilha conectada: consult a aba profiles via Web App
+            try {
+                return await postToSheets<Profile | null>('verificarUsuario', { email })
+            } catch {
+                return null
+            }
+        }
+    },
+
     casos: {
         async listar(): Promise<any[]> {
             if (!env.VITE_GOOGLE_SHEETS_WEBAPP_URL) {
@@ -994,65 +1013,6 @@ export const sheetsClient = {
         }
     },
 
-    auth: {
-        async init(): Promise<Profile | null> {
-            const userStr = localStorage.getItem('argos_sheets_user')
-            if (!userStr) return null
-            try {
-                return JSON.parse(userStr) as Profile
-            } catch {
-                localStorage.removeItem('argos_sheets_user')
-                return null
-            }
-        },
-
-        async login(username: string, password?: string): Promise<Profile> {
-            const userLower = username.toLowerCase().trim()
-            if (!env.VITE_GOOGLE_SHEETS_WEBAPP_URL) {
-                const db = getLocalDb()
-                const p = db.profiles.find(user => user.username.toLowerCase() === userLower && user.password === password)
-                if (!p) throw new Error('Credenciais inválidas')
-                const sessionProfile: Profile = { id: p.id, username: p.username, email: p.email, role: p.role }
-                localStorage.setItem('argos_sheets_user', JSON.stringify(sessionProfile))
-                return sessionProfile
-            }
-
-            const p = await postToSheets<Profile>('authLogin', { username: userLower, password })
-            localStorage.setItem('argos_sheets_user', JSON.stringify(p))
-            return p
-        },
-
-        async register(email: string, username: string, password?: string): Promise<Profile> {
-            const userLower = username.toLowerCase().trim()
-            if (!env.VITE_GOOGLE_SHEETS_WEBAPP_URL) {
-                const db = getLocalDb()
-                const existe = db.profiles.some(user => user.username.toLowerCase() === userLower || user.email.toLowerCase() === email.toLowerCase())
-                if (existe) throw new Error('Usuário ou email já cadastrado')
-
-                const novo: Profile = {
-                    id: generateUUID(),
-                    username: userLower,
-                    role: 'Analista',
-                    email: email.toLowerCase().trim(),
-                    password
-                }
-                db.profiles.push(novo)
-                saveLocalDb(db)
-
-                const sessionProfile = { id: novo.id, username: novo.username, email: novo.email, role: novo.role }
-                localStorage.setItem('argos_sheets_user', JSON.stringify(sessionProfile))
-                return sessionProfile
-            }
-
-            const p = await postToSheets<Profile>('authRegister', { email, username: userLower, password })
-            localStorage.setItem('argos_sheets_user', JSON.stringify(p))
-            return p
-        },
-
-        async logout(): Promise<void> {
-            localStorage.removeItem('argos_sheets_user')
-        }
-    },
 
     pep: {
         async checkPep(cpf: string): Promise<any | null> {
